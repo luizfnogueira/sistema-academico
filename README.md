@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sistema Acadêmico - Estrutura Inicial
 
 Primeira versão da aplicação Spring Boot para o dashboard acadêmico com integração MySQL. Esta entrega cobre somente a estrutura Maven + HTML/CSS para que o restante da equipe possa evoluir facilmente.
@@ -31,3 +32,6 @@ mvn spring-boot:run
 ```
 
 A aplicação iniciará em `http://localhost:8080`.
+=======
+# sistema-academico
+>>>>>>> a37872546a8204920e906ae4b72e8f5c30ebaf4d
