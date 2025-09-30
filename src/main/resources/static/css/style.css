@@ -84,13 +84,15 @@ label {
 }
 
 input,
+select,
 button {
     border-radius: 8px;
     border: 1px solid var(--border);
     padding: 0.75rem 1rem;
 }
 
-input:focus {
+input:focus,
+select:focus {
     border-color: var(--secondary);
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 102, 153, 0.15);
@@ -156,4 +158,222 @@ button.danger:hover {
     border-bottom: none;
     color: rgba(32, 33, 36, 0.6);
     font-size: 0.85rem;
+}
+
+/* Estilos para estatísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    border-radius: 12px;
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 102, 153, 0.2);
+}
+
+.stat-card h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Estilos para mensagens de erro */
+.error-message {
+    background: #ffebee;
+    border: 1px solid #f44336;
+    border-radius: 12px;
+    color: #c62828;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.error-message h3 {
+    color: #d32f2f;
+    margin-bottom: 1rem;
+}
+
+.error-message ol {
+    margin-top: 1rem;
+    padding-left: 1.5rem;
+}
+
+.error-message a {
+    color: var(--secondary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.error-message a:hover {
+    text-decoration: underline;
+}
+
+/* Melhorias nas tabelas */
+.graficos-placeholder table {
+    margin-top: 1rem;
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.graficos-placeholder th {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    text-align: left;
+}
+
+.graficos-placeholder td {
+    border-bottom: 1px solid var(--border);
+}
+
+.graficos-placeholder tr:hover {
+    background: rgba(0, 102, 153, 0.05);
+}
+
+/* Estilos para gráficos */
+.graficos-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.chart-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.chart-container h4 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Estilos para consultas complexas */
+.consultas-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.consulta-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.consulta-btn {
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.consulta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.consulta-resultado {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.consulta-resultado h4 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+#consulta-tabela {
+    overflow-x: auto;
+}
+
+#consulta-tabela table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#consulta-tabela th,
+#consulta-tabela td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#consulta-tabela th {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+}
+
+#consulta-tabela tr:hover {
+    background: rgba(0, 102, 153, 0.05);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .consulta-buttons {
+        grid-template-columns: 1fr;
+    }
 }

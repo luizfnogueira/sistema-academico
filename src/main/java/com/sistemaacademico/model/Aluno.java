@@ -1,7 +1,7 @@
 package com.sistemaacademico.model;
 
 public class Aluno {
-    private int id;
+    private int idAluno;
     private String nome;
     private int idade;
     private String sexo;
@@ -10,12 +10,25 @@ public class Aluno {
     private String rua;
     private int num;
     private String cep;
-    private String monitor;
-    private String monitorado;
+    private Integer monitor;
+    private Integer monitorado;
+
+    // Construtores
+    public Aluno() {}
+
+    public Aluno(String nome, int idade, String sexo, String rua, int num, String cep) {
+        this.nome = nome;
+        this.idade = idade;
+        this.sexo = sexo;
+        this.rua = rua;
+        this.num = num;
+        this.cep = cep;
+        this.frequencia = 100.0; // Valor padrão
+    }
 
     // Getters e setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getIdAluno() { return idAluno; }
+    public void setIdAluno(int idAluno) { this.idAluno = idAluno; }
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
@@ -41,9 +54,21 @@ public class Aluno {
     public String getCep() { return cep; }
     public void setCep(String cep) { this.cep = cep; }
 
-    public String getMonitor() { return monitor; }
-    public void setMonitor(String monitor) { this.monitor = monitor; }
+    public Integer getMonitor() { return monitor; }
+    public void setMonitor(Integer monitor) { this.monitor = monitor; }
 
-    public String getMonitorado() { return monitorado; }
-    public void setMonitorado(String monitorado) { this.monitorado = monitorado; }
+    public Integer getMonitorado() { return monitorado; }
+    public void setMonitorado(Integer monitorado) { this.monitorado = monitorado; }
+
+    @Override
+    public String toString() {
+        return "Aluno{" +
+                "idAluno=" + idAluno +
+                ", nome='" + nome + '\'' +
+                ", idade=" + idade +
+                ", sexo='" + sexo + '\'' +
+                ", media=" + media +
+                ", frequencia=" + frequencia +
+                '}';
+    }
 }
