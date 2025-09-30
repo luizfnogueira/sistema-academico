@@ -50,17 +50,15 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
-        </dependency>
     <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.sistemaacademico.SistemaAcademicoApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

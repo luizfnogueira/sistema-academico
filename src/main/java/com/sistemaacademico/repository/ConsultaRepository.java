@@ -5,8 +5,6 @@ import com.sistemaacademico.model.Aluno;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-// ...existing code...
 import java.util.List;
 
 @Repository
@@ -16,6 +14,106 @@ public class ConsultaRepository {
     private JdbcTemplate jdbcTemplate;
     // ...existing code...
 
+    // Criar tabela Matricula
+    public void criarTabelaMatricula() {
+        String sql = "CREATE TABLE IF NOT EXISTS Matricula (" +
+                "Id_Matricula INT PRIMARY KEY AUTO_INCREMENT," +
+                "Data DATE," +
+                "Id_Aluno INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Criar tabela Disciplina
+    public void criarTabelaDisciplina() {
+        String sql = "CREATE TABLE IF NOT EXISTS Disciplina (" +
+                "Id_Disc INT PRIMARY KEY AUTO_INCREMENT," +
+                "Nome VARCHAR(255) NOT NULL," +
+                "Carga_Horaria INT DEFAULT 40 CHECK (Carga_Horaria BETWEEN 20 AND 120)," +
+                "Id_Aluno INT," +
+                "Id_Turma INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL," +
+                "FOREIGN KEY (Id_Turma) REFERENCES Turma(Id_Turma) ON DELETE SET NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Criar tabela Avaliacao
+    public void criarTabelaAvaliacao() {
+        String sql = "CREATE TABLE IF NOT EXISTS Avaliacao (" +
+                "Id_Avalia INT PRIMARY KEY AUTO_INCREMENT," +
+                "Valor DECIMAL(4, 2) CHECK (Valor >= 0 AND Valor <= 10)," +
+                "Data DATE," +
+                "Id_Aluno INT," +
+                "Id_Disc INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL," +
+                "FOREIGN KEY (Id_Disc) REFERENCES Disciplina(Id_Disc) ON DELETE SET NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Criar tabela Pagamento
+    public void criarTabelaPagamento() {
+        String sql = "CREATE TABLE IF NOT EXISTS Pagamento (" +
+                "Id_Pagamento INT PRIMARY KEY AUTO_INCREMENT," +
+                "Status VARCHAR(50) DEFAULT 'Pendente' CHECK (Status IN ('Pendente','Pago','Atrasado'))," +
+                "Valor DECIMAL(10, 2) CHECK (Valor >= 0)," +
+                "Data DATE," +
+                "Id_Aluno INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Criar tabela Proj_Extensao
+    public void criarTabelaProjExtensao() {
+        String sql = "CREATE TABLE IF NOT EXISTS Proj_Extensao (" +
+                "Id_Proj INT PRIMARY KEY AUTO_INCREMENT," +
+                "Nome VARCHAR(255)," +
+                "Descricao VARCHAR(255)," +
+                "Id_Prof INT," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE SET NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Criar tabela Conselho
+    public void criarTabelaConselho() {
+        String sql = "CREATE TABLE IF NOT EXISTS Conselho (" +
+                "Id_Conselho INT PRIMARY KEY AUTO_INCREMENT," +
+                "Descricao VARCHAR(255)," +
+                "Data DATE," +
+                "Id_Prof INT," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE SET NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Criar tabela Telefone
+    public void criarTabelaTelefone() {
+        String sql = "CREATE TABLE IF NOT EXISTS Telefone (" +
+                "Numero VARCHAR(20)," +
+                "Id_Aluno INT," +
+                "Id_Prof INT," +
+                "PRIMARY KEY (Numero)," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Criar tabela Email
+    public void criarTabelaEmail() {
+        String sql = "CREATE TABLE IF NOT EXISTS Email (" +
+                "Email VARCHAR(255) PRIMARY KEY," +
+                "Id_Aluno INT," +
+                "Id_Prof INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
     // Criar tabela Aluno
     public void criarTabelaAluno() {
         String sql = "CREATE TABLE IF NOT EXISTS Aluno (" +
