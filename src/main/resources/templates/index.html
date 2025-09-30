@@ -5,7 +5,26 @@
     <title th:text="${pageTitle}">Sistema Acadêmico</title>
     <link rel="stylesheet" href="/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+    
+    <script th:inline="javascript">
+        // Variáveis de Gráficos Iniciais REMOVIDAS.
+        
+        window.frequenciaEstudoVsMedia = /*[[${frequenciaEstudoVsMedia}]]*/ [{}]; // Item 1
+        window.estresseVsProjetos = /*[[${estresseVsProjetos}]]*/ [{}]; // Item 2
+        window.suporteProfVsProjetos = /*[[${suporteProfVsProjetos}]]*/ [{}]; // Item 3
+        window.frequenciaVsDisciplinas = /*[[${frequenciaVsDisciplinas}]]*/ [{}]; // Item 4
+        window.valorVsMedia = /*[[${valorVsMedia}]]*/ [{}]; // Item 5
+        window.distribuicaoEmail = /*[[${distribuicaoEmail}]]*/ [{}]; // Item 6
+        window.distribuicaoGenero = /*[[${distribuicaoGenero}]]*/ [{}]; // Item 7
+        window.distribuicaoTelefone = /*[[${distribuicaoTelefone}]]*/ [{}]; // Item 8
+        window.distribuicaoProjetos = /*[[${distribuicaoProjetos}]]*/ [{}]; // Item 9
+        window.distribuicaoFreqEstudo = /*[[${distribuicaoFreqEstudo}]]*/ [{}]; // Item 10
+        window.distribuicaoIdadeGrafico = /*[[${distribuicaoIdadeGrafico}]]*/ [{}]; // Item 11 (Pizza)
+        window.distribuicaoRecursos = /*[[${distribuicaoRecursos}]]*/ [{}]; // Item 12
+        window.dadosMonitoria = /*[[${dadosMonitoria}]]*/ [{}]; // Item 13
+        window.freqRecursosVsEstudo = /*[[${freqRecursosVsEstudo}]]*/ [{}]; // Item 14
+    </script>
+    </head>
 <body>
 <header class="page-header">
     <h1 th:text="${pageTitle}">Sistema Acadêmico</h1>
@@ -16,122 +35,26 @@
     <section class="card">
         <h2>Comandos para Alunos</h2>
         <form class="form-grid" data-action="create-aluno">
-            <h3>Inserir novo aluno</h3>
-            <label>
-                Nome
-                <input type="text" name="nome" placeholder="Maria Silva" required>
-            </label>
-            <label>
-                Idade
-                <input type="number" name="idade" min="16" max="100" placeholder="20" required>
-            </label>
-            <label>
-                Sexo
-                <select name="sexo" required>
-                    <option value="M">Masculino</option>
-                    <option value="F">Feminino</option>
-                </select>
-            </label>
-            <label>
-                Rua
-                <input type="text" name="rua" placeholder="Rua das Flores">
-            </label>
-            <label>
-                Número
-                <input type="number" name="num" placeholder="123">
-            </label>
-            <label>
-                CEP
-                <input type="text" name="cep" placeholder="12345-678">
-            </label>
-            <button type="submit">Salvar</button>
         </form>
         <form class="form-grid" data-action="update-aluno">
-            <h3>Atualizar dados do aluno</h3>
-            <label>
-                ID do aluno
-                <input type="number" name="id" required>
-            </label>
-            <label>
-                Nome
-                <input type="text" name="nome" placeholder="Novo nome">
-            </label>
-            <label>
-                Idade
-                <input type="number" name="idade" min="16" max="100">
-            </label>
-            <label>
-                Sexo
-                <select name="sexo">
-                    <option value="">Selecione</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Feminino</option>
-                </select>
-            </label>
-            <label>
-                Média
-                <input type="number" name="media" step="0.1" min="0" max="10" placeholder="7.5">
-            </label>
-            <label>
-                Frequência (%)
-                <input type="number" name="frequencia" step="0.1" min="0" max="100" placeholder="85.5">
-            </label>
-            <button type="submit">Atualizar</button>
         </form>
         <form class="form-grid" data-action="delete-aluno">
-            <h3>Excluir aluno</h3>
-            <label>
-                ID do aluno
-                <input type="number" name="id" required>
-            </label>
-            <button type="submit" class="danger">Excluir</button>
         </form>
     </section>
 
     <section class="card">
         <h2>Comandos para Disciplinas</h2>
         <form class="form-grid" data-action="create-disciplina">
-            <h3>Inserir disciplina</h3>
-            <label>
-                Nome
-                <input type="text" name="nome" placeholder="Estatística Aplicada" required>
-            </label>
-            <label>
-                Carga Horária
-                <input type="number" name="cargaHoraria" min="20" max="120" placeholder="40" required>
-            </label>
-            <button type="submit">Salvar</button>
         </form>
         <form class="form-grid" data-action="update-disciplina">
-            <h3>Atualizar disciplina</h3>
-            <label>
-                ID disciplina
-                <input type="number" name="id" required>
-            </label>
-            <label>
-                Nome
-                <input type="text" name="nome" placeholder="Novo nome">
-            </label>
-            <label>
-                Nova carga horária
-                <input type="number" name="cargaHoraria" min="20" max="120">
-            </label>
-            <button type="submit">Atualizar</button>
         </form>
         <form class="form-grid" data-action="delete-disciplina">
-            <h3>Excluir disciplina</h3>
-            <label>
-                ID disciplina
-                <input type="number" name="id" required>
-            </label>
-            <button type="submit" class="danger">Excluir</button>
         </form>
     </section>
 
     <section class="card card-wide">
         <h2>Estatísticas do Sistema</h2>
         
-        <!-- Estatísticas Gerais -->
         <div class="stats-grid" th:if="${estatisticas}">
             <div class="stat-card">
                 <h3>Total de Alunos</h3>
@@ -155,154 +78,38 @@
             </div>
         </div>
 
-        <!-- Consultas Disponíveis -->
         <ul class="consulta-list">
             <li th:each="consulta : ${consultas}" th:text="consulta">Consulta exemplo</li>
         </ul>
 
-        <!-- Distribuição por Sexo -->
-        <div class="graficos-placeholder" th:if="${distribuicaoSexo}">
-            <h3>Distribuição por Sexo</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>Sexo</th>
-                    <th>Quantidade</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${distribuicaoSexo}">
-                    <td th:text="${item.descricao()}">M/F</td>
-                    <td th:text="${item.valor()}">0</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="graficos-placeholder" th:if="${estatisticas}">
+            <h3 style="margin-top: 1.5rem;">Visualização de Dados em Tabela</h3>
+             <p>As tabelas iniciais foram removidas. Adicione seu código de tabela aqui.</p>
         </div>
 
-        <!-- Distribuição por Idade -->
-        <div class="graficos-placeholder" th:if="${distribuicaoIdade}">
-            <h3>Distribuição por Faixa Etária</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>Faixa Etária</th>
-                    <th>Quantidade</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${distribuicaoIdade}">
-                    <td th:text="${item.descricao()}">Faixa</td>
-                    <td th:text="${item.valor()}">0</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Top Disciplinas -->
-        <div class="graficos-placeholder" th:if="${topDisciplinas}">
-            <h3>Top 5 Disciplinas (Carga Horária)</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>Disciplina</th>
-                    <th>Carga Horária</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${topDisciplinas}">
-                    <td th:text="${item.descricao()}">Disciplina</td>
-                    <td th:text="${item.valor()}">0</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Top Alunos -->
-        <div class="graficos-placeholder" th:if="${topAlunos}">
-            <h3>Top 10 Alunos (Melhor Desempenho)</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Média</th>
-                    <th>Frequência</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="aluno : ${topAlunos}">
-                    <td th:text="${aluno.nome}">Nome</td>
-                    <td th:text="${#numbers.formatDecimal(aluno.media, 1, 2)}">0.0</td>
-                    <td th:text="${#numbers.formatDecimal(aluno.frequencia, 1, 2)}%">0.0%</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Gráficos Estatísticos -->
-        <div class="graficos-section" th:if="${distribuicaoSexo}">
-            <h3>📊 Gráficos Estatísticos</h3>
+        <div class="graficos-section">
+            <h3>📊 Gráficos Estatísticos (10 + 4 Pesquisa)</h3>
             
             <div class="charts-grid">
-                <div class="chart-container">
-                    <h4>Distribuição por Sexo</h4>
-                    <canvas id="sexoChart" width="400" height="200"></canvas>
-                </div>
                 
-                <div class="chart-container">
-                    <h4>Distribuição por Idade</h4>
-                    <canvas id="idadeChart" width="400" height="200"></canvas>
-                </div>
+                <div class="chart-container"><h4>Desempenho vs. Esforço (Item 1)</h4><canvas id="mediaVsEstudoChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Estresse vs. Projetos (Item 2)</h4><canvas id="estresseVsProjetosChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Suporte Prof. vs. Projetos (Item 3)</h4><canvas id="suporteProfVsProjetosChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Frequência vs. Disciplinas (Item 4)</h4><canvas id="frequenciaVsDisciplinasChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Valor vs. Média Geral (Item 5)</h4><canvas id="valorVsMediaChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Distribuição de Idade (Específica) (Item 11)</h4><canvas id="idadeEspecíficaChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Uso de Recursos (Contagem) (Item 12)</h4><canvas id="recursosChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Situação de Monitoria (Item 13)</h4><canvas id="monitoriaChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Recursos vs. Estudo (Gênero) (Item 14)</h4><canvas id="freqRecursosVsEstudoChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Distribuição por Gênero (Barra) (Item 7)</h4><canvas id="generoChart" width="400" height="200"></canvas></div>
                 
-                <div class="chart-container">
-                    <h4>Top Disciplinas (Carga Horária)</h4>
-                    <canvas id="disciplinasChart" width="400" height="200"></canvas>
                 </div>
-                
-                <div class="chart-container">
-                    <h4>Médias dos Alunos</h4>
-                    <canvas id="mediasChart" width="400" height="200"></canvas>
-                </div>
-            </div>
         </div>
 
-        <!-- Consultas Complexas -->
         <div class="consultas-section">
-            <h3>🔍 Consultas Complexas (Etapa 03)</h3>
-            
-            <div class="consulta-buttons">
-                <button onclick="carregarConsulta('alunos-disciplinas')" class="consulta-btn">
-                    📚 Alunos e Disciplinas
-                </button>
-                <button onclick="carregarConsulta('distribuicao-idade-sexo')" class="consulta-btn">
-                    👥 Distribuição por Idade e Sexo
-                </button>
-                <button onclick="carregarConsulta('analise-disciplinas')" class="consulta-btn">
-                    📊 Análise de Disciplinas
-                </button>
-                <button onclick="carregarConsulta('situacao-academica')" class="consulta-btn">
-                    🎓 Situação Acadêmica
-                </button>
-                <button onclick="carregarConsulta('ranking-professores')" class="consulta-btn">
-                    👨‍🏫 Ranking de Professores
-                </button>
-            </div>
-            
-            <div id="consulta-resultado" class="consulta-resultado" style="display: none;">
-                <h4>Resultado da Consulta</h4>
-                <div id="consulta-tabela"></div>
-            </div>
         </div>
 
-        <!-- Mensagem de erro -->
         <div class="error-message" th:if="${erro}">
-            <h3>⚠️ Erro</h3>
-            <p th:text="${erro}">Erro ao carregar dados</p>
-            <p><strong>Para resolver:</strong></p>
-            <ol>
-                <li>Certifique-se de que o MySQL está rodando</li>
-                <li>Verifique as credenciais no application.properties</li>
-                <li>Acesse <a href="/api/criar-tabelas" target="_blank">/api/criar-tabelas</a> para criar as tabelas</li>
-            </ol>
         </div>
     </section>
 </main>
