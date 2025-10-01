@@ -26,30 +26,156 @@
     </script>
     </head>
 <body>
-<header class="page-header">
-    <h1 th:text="${pageTitle}">Sistema Acadêmico</h1>
-    <p>Primeira versão do dashboard acadêmico com integração MySQL</p>
-</header>
+    <header class="page-header">
+        <h1>Sistema Acadêmico</h1>
+        <p>Primeira versão do dashboard acadêmico com integração MySQL</p>
+    </header>
 
 <main class="layout">
     <section class="card">
         <h2>Comandos para Alunos</h2>
+        
+        <!-- Formulário para Criar Aluno -->
         <form class="form-grid" data-action="create-aluno">
+            <h3>Criar Novo Aluno</h3>
+            <label>
+                Nome:
+                <input type="text" name="nome" required>
+            </label>
+            <label>
+                Idade:
+                <input type="number" name="idade" min="16" max="100" required>
+            </label>
+            <label>
+                Sexo:
+                <select name="sexo" required>
+                    <option value="">Selecione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                </select>
+            </label>
+            <label>
+                Rua:
+                <input type="text" name="rua">
+            </label>
+            <label>
+                Número:
+                <input type="number" name="num">
+            </label>
+            <label>
+                CEP:
+                <input type="text" name="cep" placeholder="00000-000">
+            </label>
+            <button type="submit">Criar Aluno</button>
         </form>
+
+        <!-- Formulário para Atualizar Aluno -->
         <form class="form-grid" data-action="update-aluno">
+            <h3>Atualizar Aluno</h3>
+            <label>
+                ID do Aluno:
+                <input type="number" name="id" required>
+            </label>
+            <label>
+                Nome:
+                <input type="text" name="nome">
+            </label>
+            <label>
+                Idade:
+                <input type="number" name="idade" min="16" max="100">
+            </label>
+            <label>
+                Sexo:
+                <select name="sexo">
+                    <option value="">Selecione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                </select>
+            </label>
+            <label>
+                Média:
+                <input type="number" name="media" min="0" max="10" step="0.1">
+            </label>
+            <label>
+                Frequência:
+                <input type="number" name="frequencia" min="0" max="100" step="0.1">
+            </label>
+            <button type="submit">Atualizar Aluno</button>
         </form>
+
+        <!-- Formulário para Deletar Aluno -->
         <form class="form-grid" data-action="delete-aluno">
+            <h3>Deletar Aluno</h3>
+            <label>
+                ID do Aluno:
+                <input type="number" name="id" required>
+            </label>
+            <button type="submit" class="danger">Deletar Aluno</button>
         </form>
     </section>
 
     <section class="card">
         <h2>Comandos para Disciplinas</h2>
+        
+        <!-- Formulário para Criar Disciplina -->
         <form class="form-grid" data-action="create-disciplina">
+            <h3>Criar Nova Disciplina</h3>
+            <label>
+                Nome:
+                <input type="text" name="nome" required>
+            </label>
+            <label>
+                Carga Horária:
+                <input type="number" name="cargaHoraria" min="20" max="120" required>
+            </label>
+            <label>
+                ID do Aluno:
+                <input type="number" name="idAluno">
+            </label>
+            <label>
+                ID da Turma:
+                <input type="number" name="idTurma">
+            </label>
+            <button type="submit">Criar Disciplina</button>
         </form>
+
+        <!-- Formulário para Atualizar Disciplina -->
         <form class="form-grid" data-action="update-disciplina">
+            <h3>Atualizar Disciplina</h3>
+            <label>
+                ID da Disciplina:
+                <input type="number" name="id" required>
+            </label>
+            <label>
+                Nome:
+                <input type="text" name="nome">
+            </label>
+            <label>
+                Carga Horária:
+                <input type="number" name="cargaHoraria" min="20" max="120">
+            </label>
+            <button type="submit">Atualizar Disciplina</button>
         </form>
+
+        <!-- Formulário para Deletar Disciplina -->
         <form class="form-grid" data-action="delete-disciplina">
+            <h3>Deletar Disciplina</h3>
+            <label>
+                ID da Disciplina:
+                <input type="number" name="id" required>
+            </label>
+            <button type="submit" class="danger">Deletar Disciplina</button>
         </form>
+    </section>
+
+    <section class="card">
+        <h2>Configuração do Banco</h2>
+        <div class="form-grid">
+            <h3>Inicializar Banco de Dados</h3>
+            <p>Execute este comando para criar todas as tabelas necessárias:</p>
+            <button onclick="criarTabelas()" class="consulta-btn">Criar Tabelas do Banco</button>
+            <div id="resultado-criacao" style="margin-top: 1rem;"></div>
+        </div>
     </section>
 
     <section class="card card-wide">

@@ -101,7 +101,7 @@ public class AlunoController {
                 return ResponseEntity.badRequest().body("Dados do aluno inválidos");
             }
             // ATENÇÃO: O id precisa ser setado no objeto para o Service saber qual atualizar
-            aluno.setId(id); // Assumindo que a model Aluno tem setId(int id)
+            aluno.setIdAluno(id); // Usando o método correto da classe Aluno
             Aluno alunoAtualizado = consultaService.atualizarAluno(aluno);
             return ResponseEntity.ok(alunoAtualizado);
         } catch (Exception e) {

@@ -505,4 +505,236 @@ public class ConsultaRepository {
         """;
         return jdbcTemplate.queryForList(sql);
     }
+
+    // ========== MÉTODOS FALTANTES PARA GRÁFICOS ==========
+    
+    public List<Map<String, Object>> obterMediaPorFrequenciaEstudo() {
+        String sql = """
+            SELECT 
+                p.Freq_Estudo as x,
+                a.Media as y
+            FROM Aluno a
+            LEFT JOIN Pesquisa p ON a.Id_Aluno = p.Id_Aluno
+            WHERE a.Media > 0 AND p.Freq_Estudo IS NOT NULL
+            ORDER BY p.Freq_Estudo
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterEstresseVsProjetos() {
+        String sql = """
+            SELECT 
+                pe.Id_Proj as x,
+                p.Nvl_Estresse as y
+            FROM Pesquisa p
+            LEFT JOIN Proj_Extensao pe ON p.Id_Aluno = pe.Id_Prof
+            WHERE p.Nvl_Estresse IS NOT NULL
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterSuporteProfVsProjetos() {
+        String sql = """
+            SELECT 
+                COUNT(pe.Id_Proj) as x,
+                AVG(a.Media) as y
+            FROM Aluno a
+            LEFT JOIN Proj_Extensao pe ON a.Id_Aluno = pe.Id_Prof
+            GROUP BY a.Id_Aluno
+            HAVING COUNT(pe.Id_Proj) > 0
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterFrequenciaVsDisciplinas() {
+        String sql = """
+            SELECT 
+                COUNT(d.Id_Disc) as x,
+                a.Frequencia as y
+            FROM Aluno a
+            LEFT JOIN Disciplina d ON a.Id_Aluno = d.Id_Aluno
+            GROUP BY a.Id_Aluno, a.Frequencia
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterValorVsMedia() {
+        String sql = """
+            SELECT 
+                SUM(p.Valor) as x,
+                a.Media as y
+            FROM Aluno a
+            LEFT JOIN Pagamento p ON a.Id_Aluno = p.Id_Aluno
+            WHERE a.Media > 0
+            GROUP BY a.Id_Aluno, a.Media
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoEmail() {
+        String sql = """
+            SELECT 
+                'Com Email' as descricao,
+                COUNT(*) as valor
+            FROM Aluno a
+            INNER JOIN Email e ON a.Id_Aluno = e.Id_Aluno
+            UNION ALL
+            SELECT 
+                'Sem Email' as descricao,
+                COUNT(*) as valor
+            FROM Aluno a
+            LEFT JOIN Email e ON a.Id_Aluno = e.Id_Aluno
+            WHERE e.Id_Aluno IS NULL
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoPorGenero() {
+        String sql = """
+            SELECT 
+                Sexo as descricao,
+                COUNT(*) as valor
+            FROM Aluno
+            GROUP BY Sexo
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoTelefone() {
+        String sql = """
+            SELECT 
+                'Com Telefone' as descricao,
+                COUNT(*) as valor
+            FROM Aluno a
+            INNER JOIN Telefone t ON a.Id_Aluno = t.Id_Aluno
+            UNION ALL
+            SELECT 
+                'Sem Telefone' as descricao,
+                COUNT(*) as valor
+            FROM Aluno a
+            LEFT JOIN Telefone t ON a.Id_Aluno = t.Id_Aluno
+            WHERE t.Id_Aluno IS NULL
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoProjetos() {
+        String sql = """
+            SELECT 
+                'Com Projetos' as descricao,
+                COUNT(*) as valor
+            FROM Aluno a
+            INNER JOIN Proj_Extensao pe ON a.Id_Aluno = pe.Id_Prof
+            UNION ALL
+            SELECT 
+                'Sem Projetos' as descricao,
+                COUNT(*) as valor
+            FROM Aluno a
+            LEFT JOIN Proj_Extensao pe ON a.Id_Aluno = pe.Id_Prof
+            WHERE pe.Id_Prof IS NULL
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoFreqEstudo() {
+        String sql = """
+            SELECT 
+                CASE 
+                    WHEN p.Freq_Estudo < 2 THEN 'Baixa'
+                    WHEN p.Freq_Estudo BETWEEN 2 AND 4 THEN 'Média'
+                    ELSE 'Alta'
+                END as descricao,
+                COUNT(*) as valor
+            FROM Pesquisa p
+            WHERE p.Freq_Estudo IS NOT NULL
+            GROUP BY 
+                CASE 
+                    WHEN p.Freq_Estudo < 2 THEN 'Baixa'
+                    WHEN p.Freq_Estudo BETWEEN 2 AND 4 THEN 'Média'
+                    ELSE 'Alta'
+                END
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoIdadeGrafico() {
+        String sql = """
+            SELECT 
+                CASE 
+                    WHEN Idade < 20 THEN 'Menos de 20'
+                    WHEN Idade BETWEEN 20 AND 25 THEN '20-25'
+                    WHEN Idade BETWEEN 26 AND 30 THEN '26-30'
+                    ELSE 'Mais de 30'
+                END as descricao,
+                COUNT(*) as valor
+            FROM Aluno
+            GROUP BY 
+                CASE 
+                    WHEN Idade < 20 THEN 'Menos de 20'
+                    WHEN Idade BETWEEN 20 AND 25 THEN '20-25'
+                    WHEN Idade BETWEEN 26 AND 30 THEN '26-30'
+                    ELSE 'Mais de 30'
+                END
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoUsoRecursos() {
+        String sql = """
+            SELECT 
+                CASE 
+                    WHEN p.Freq_Recurso = 0 THEN 'Nunca'
+                    WHEN p.Freq_Recurso BETWEEN 1 AND 3 THEN 'Raramente'
+                    WHEN p.Freq_Recurso BETWEEN 4 AND 6 THEN 'Frequentemente'
+                    ELSE 'Sempre'
+                END as descricao,
+                COUNT(*) as valor
+            FROM Pesquisa p
+            WHERE p.Freq_Recurso IS NOT NULL
+            GROUP BY 
+                CASE 
+                    WHEN p.Freq_Recurso = 0 THEN 'Nunca'
+                    WHEN p.Freq_Recurso BETWEEN 1 AND 3 THEN 'Raramente'
+                    WHEN p.Freq_Recurso BETWEEN 4 AND 6 THEN 'Frequentemente'
+                    ELSE 'Sempre'
+                END
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterDadosMonitoria() {
+        String sql = """
+            SELECT 
+                'Monitor' as descricao,
+                COUNT(*) as valor
+            FROM Aluno
+            WHERE Monitor IS NOT NULL
+            UNION ALL
+            SELECT 
+                'Monitorado' as descricao,
+                COUNT(*) as valor
+            FROM Aluno
+            WHERE Monitorado IS NOT NULL
+            UNION ALL
+            SELECT 
+                'Sem Monitoria' as descricao,
+                COUNT(*) as valor
+            FROM Aluno
+            WHERE Monitor IS NULL AND Monitorado IS NULL
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    public List<Map<String, Object>> obterFreqRecursosVsEstudo() {
+        String sql = """
+            SELECT 
+                p.Freq_Recurso as x,
+                p.Freq_Estudo as y,
+                a.Sexo as genero
+            FROM Pesquisa p
+            INNER JOIN Aluno a ON p.Id_Aluno = a.Id_Aluno
+            WHERE p.Freq_Recurso IS NOT NULL AND p.Freq_Estudo IS NOT NULL
+        """;
+        return jdbcTemplate.queryForList(sql);
+    }
 }

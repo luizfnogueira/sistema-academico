@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 public class DashboardController {
@@ -22,10 +23,6 @@ public class DashboardController {
             Map<String, Object> estatisticas = consultaService.obterEstatisticasGerais();
             
             // DADOS PARA OS 14 GRÁFICOS DE PESQUISA (NOVOS)
-            
-            // Gráficos Iniciais (REMOVIDOS)
-            // Os dados de Aluno/Disciplina para tabelas simples serão mantidos na seção estatísticas,
-            // mas os gráficos foram removidos.
             
             // Gráficos de Pesquisa (14) - MANTIDOS
             model.addAttribute("frequenciaEstudoVsMedia", consultaService.obterMediaPorFrequenciaEstudo()); // Item 1
@@ -53,8 +50,17 @@ public class DashboardController {
             
         } catch (Exception e) {
             // Em caso de erro, usar dados padrão e exibir mensagem de erro no HTML
-            model.addAttribute("pageTitle", "Painel Acadêmico (ERRO DE CONEXÃO)");
-            model.addAttribute("estatisticas", Collections.emptyMap());
+            model.addAttribute("pageTitle", "Sistema Acadêmico");
+            
+            // Criar estatísticas padrão para evitar erro no template
+            Map<String, Object> estatisticasPadrao = new HashMap<>();
+            estatisticasPadrao.put("totalAlunos", 0);
+            estatisticasPadrao.put("totalDisciplinas", 0);
+            estatisticasPadrao.put("mediaGeralNotas", 0.0);
+            estatisticasPadrao.put("alunosFrequenciaBaixa", 0);
+            estatisticasPadrao.put("taxaAprovacao", 0.0);
+            
+            model.addAttribute("estatisticas", estatisticasPadrao);
             model.addAttribute("erro", "Erro ao carregar dados: " + e.getMessage());
             model.addAttribute("consultas", new String[]{
                     "Erro ao carregar dados", "Verifique a conexão com o banco", "Execute /api/criar-tabelas primeiro"

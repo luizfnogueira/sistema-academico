@@ -29,6 +29,7 @@ public class Aluno {
     // Getters e setters
     public int getIdAluno() { return idAluno; }
     public void setIdAluno(int idAluno) { this.idAluno = idAluno; }
+    public void setId(int id) { this.idAluno = id; } // Método para compatibilidade com controller
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }

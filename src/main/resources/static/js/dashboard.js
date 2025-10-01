@@ -10,9 +10,113 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================================================================
-// FUNÇÕES DE CRUD E AUXILIARES (MANTIDAS)
-// ... (Mantenha todas as suas funções originais de CRUD e auxiliares aqui) ...
+// FUNÇÕES DE CRUD E AUXILIARES
 // =========================================================================
+
+function setupFormHandlers() {
+    // Configurar todos os formulários
+    const forms = document.querySelectorAll('form[data-action]');
+    forms.forEach(form => {
+        form.addEventListener('submit', handleFormSubmit);
+    });
+}
+
+async function handleFormSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const action = form.getAttribute('data-action');
+    const formData = new FormData(form);
+    
+    try {
+        let response;
+        const data = Object.fromEntries(formData.entries());
+        
+        switch (action) {
+            case 'create-aluno':
+                response = await fetch('/api/alunos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                break;
+                
+            case 'update-aluno':
+                const alunoId = data.id;
+                delete data.id;
+                response = await fetch(`/api/alunos/${alunoId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                break;
+                
+            case 'delete-aluno':
+                response = await fetch(`/api/alunos/${data.id}`, {
+                    method: 'DELETE'
+                });
+                break;
+                
+            case 'create-disciplina':
+                response = await fetch('/api/disciplinas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                break;
+                
+            case 'update-disciplina':
+                const disciplinaId = data.id;
+                delete data.id;
+                response = await fetch(`/api/disciplinas/${disciplinaId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                break;
+                
+            case 'delete-disciplina':
+                response = await fetch(`/api/disciplinas/${data.id}`, {
+                    method: 'DELETE'
+                });
+                break;
+        }
+        
+        if (response.ok) {
+            alert('Operação realizada com sucesso!');
+            form.reset();
+            // Recarregar página para atualizar estatísticas
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            const error = await response.text();
+            alert('Erro: ' + error);
+        }
+        
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        alert('Erro de conexão: ' + error.message);
+    }
+}
+
+// Função para criar tabelas
+async function criarTabelas() {
+    const resultadoDiv = document.getElementById('resultado-criacao');
+    resultadoDiv.innerHTML = '<p>🔄 Criando tabelas...</p>';
+    
+    try {
+        const response = await fetch('/api/criar-tabelas');
+        const resultado = await response.text();
+        
+        if (response.ok) {
+            resultadoDiv.innerHTML = '<p style="color: green;">✅ ' + resultado + '</p>';
+            // Recarregar página após 2 segundos
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            resultadoDiv.innerHTML = '<p style="color: red;">❌ Erro: ' + resultado + '</p>';
+        }
+    } catch (error) {
+        resultadoDiv.innerHTML = '<p style="color: red;">❌ Erro de conexão: ' + error.message + '</p>';
+    }
+}
 
 
 // =========================================================================

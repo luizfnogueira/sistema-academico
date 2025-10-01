@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collections;
 
 @Service
 public class ConsultaService {
@@ -154,5 +155,81 @@ public class ConsultaService {
             return false;
         }
         return true;
+    }
+
+    // ========== MÉTODOS FALTANTES PARA GRÁFICOS ==========
+    
+    public List<Map<String, Object>> obterMediaPorFrequenciaEstudo() {
+        return consultaRepository.obterMediaPorFrequenciaEstudo();
+    }
+
+    public List<Map<String, Object>> obterEstresseVsProjetos() {
+        return consultaRepository.obterEstresseVsProjetos();
+    }
+
+    public List<Map<String, Object>> obterSuporteProfVsProjetos() {
+        return consultaRepository.obterSuporteProfVsProjetos();
+    }
+
+    public List<Map<String, Object>> obterFrequenciaVsDisciplinas() {
+        return consultaRepository.obterFrequenciaVsDisciplinas();
+    }
+
+    public List<Map<String, Object>> obterValorVsMedia() {
+        return consultaRepository.obterValorVsMedia();
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoEmail() {
+        return consultaRepository.obterDistribuicaoEmail();
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoPorGenero() {
+        return consultaRepository.obterDistribuicaoPorGenero();
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoTelefone() {
+        return consultaRepository.obterDistribuicaoTelefone();
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoProjetos() {
+        return consultaRepository.obterDistribuicaoProjetos();
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoFreqEstudo() {
+        return consultaRepository.obterDistribuicaoFreqEstudo();
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoIdadeGrafico() {
+        return consultaRepository.obterDistribuicaoIdadeGrafico();
+    }
+
+    public List<Map<String, Object>> obterDistribuicaoUsoRecursos() {
+        return consultaRepository.obterDistribuicaoUsoRecursos();
+    }
+
+    public List<Map<String, Object>> obterDadosMonitoria() {
+        return consultaRepository.obterDadosMonitoria();
+    }
+
+    public List<Map<String, Object>> obterFreqRecursosVsEstudo() {
+        return consultaRepository.obterFreqRecursosVsEstudo();
+    }
+
+    // Método para consultas complexas
+    public List<Map<String, Object>> obterConsultaComplexa(String tipoConsulta) {
+        switch (tipoConsulta) {
+            case "alunos-disciplinas":
+                return consultaRepository.obterAlunosComDisciplinas();
+            case "distribuicao-idade-sexo":
+                return consultaRepository.obterDistribuicaoPorIdadeESexo();
+            case "analise-desempenho":
+                return consultaRepository.obterAnaliseDesempenhoDisciplinas();
+            case "situacao-academica":
+                return consultaRepository.obterSituacaoAcademicaCompleta();
+            case "ranking-professores":
+                return consultaRepository.obterRankingProfessores();
+            default:
+                return Collections.emptyList();
+        }
     }
 }
