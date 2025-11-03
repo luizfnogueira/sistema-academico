@@ -15,73 +15,67 @@ public class ConsultaRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    // ...existing code...
 
-    // Criar tabela Matricula
-    public void criarTabelaMatricula() {
-        String sql = "CREATE TABLE IF NOT EXISTS Matricula (" +
-                "Id_Matricula INT PRIMARY KEY AUTO_INCREMENT," +
-                "Data DATE," +
-                "Id_Aluno INT," +
-                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL" +
+    // ========== CRIAÇÃO DE TABELAS (EM ORDEM DE DEPENDÊNCIA) ==========
+
+    // Grupo 1: Tabelas sem dependências externas (exceto si mesmas)
+    public void criarTabelaAluno() {
+        String sql = "CREATE TABLE IF NOT EXISTS Aluno (" +
+                "Id_Aluno INT PRIMARY KEY AUTO_INCREMENT," +
+                "Nome VARCHAR(255) NOT NULL," +
+                "Sexo CHAR(1) CHECK (Sexo IN ('M','F'))," +
+                "Data_Nasc DATE NOT NULL," + // Adicionado
+                "Idade INT CHECK (Idade >= 16)," +
+                "Num INT," +
+                "CEP VARCHAR(9)," +
+                "Rua VARCHAR(255)," +
+                "Media DECIMAL(4,2)," +
+                "Frequencia DECIMAL(5,2) DEFAULT 100 CHECK (Frequencia BETWEEN 0 AND 100)" +
+                // Colunas Monitor e Monitorado removidas
                 ")";
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Disciplina
+    public void criarTabelaProfessor() {
+        String sql = "CREATE TABLE IF NOT EXISTS Professor (" +
+                "Id_Prof INT PRIMARY KEY AUTO_INCREMENT," +
+                "CPF VARCHAR(14) UNIQUE," +
+                "Nome VARCHAR(255) NOT NULL," +
+                "Rua VARCHAR(255)," +
+                "Num INT," +
+                "CEP VARCHAR(9)" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    public void criarTabelaTurma() {
+        String sql = "CREATE TABLE IF NOT EXISTS Turma (" +
+                "Id_Turma INT PRIMARY KEY AUTO_INCREMENT," +
+                "Nome VARCHAR(100) NOT NULL," +
+                "Ano INT NOT NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    public void criarTabelaRecurso() {
+        String sql = "CREATE TABLE IF NOT EXISTS Recurso (" +
+                "Id_Recurso INT PRIMARY KEY AUTO_INCREMENT," +
+                "Tipo VARCHAR(100) DEFAULT 'Geral'," +
+                "Localizacao VARCHAR(255)" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
     public void criarTabelaDisciplina() {
         String sql = "CREATE TABLE IF NOT EXISTS Disciplina (" +
                 "Id_Disc INT PRIMARY KEY AUTO_INCREMENT," +
                 "Nome VARCHAR(255) NOT NULL," +
-                "Carga_Horaria INT DEFAULT 40 CHECK (Carga_Horaria BETWEEN 20 AND 120)," +
-                "Id_Aluno INT," +
-                "Id_Turma INT," +
-                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL," +
-                "FOREIGN KEY (Id_Turma) REFERENCES Turma(Id_Turma) ON DELETE SET NULL" +
+                "Carga_Horaria INT DEFAULT 40 CHECK (Carga_Horaria BETWEEN 20 AND 120)" +
+                // Colunas Id_Aluno e Id_Turma removidas
                 ")";
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Avaliacao
-    public void criarTabelaAvaliacao() {
-        String sql = "CREATE TABLE IF NOT EXISTS Avaliacao (" +
-                "Id_Avalia INT PRIMARY KEY AUTO_INCREMENT," +
-                "Valor DECIMAL(4, 2) CHECK (Valor >= 0 AND Valor <= 10)," +
-                "Data DATE," +
-                "Id_Aluno INT," +
-                "Id_Disc INT," +
-                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL," +
-                "FOREIGN KEY (Id_Disc) REFERENCES Disciplina(Id_Disc) ON DELETE SET NULL" +
-                ")";
-        jdbcTemplate.execute(sql);
-    }
-
-    // Criar tabela Pagamento
-    public void criarTabelaPagamento() {
-        String sql = "CREATE TABLE IF NOT EXISTS Pagamento (" +
-                "Id_Pagamento INT PRIMARY KEY AUTO_INCREMENT," +
-                "Status VARCHAR(50) DEFAULT 'Pendente' CHECK (Status IN ('Pendente','Pago','Atrasado'))," +
-                "Valor DECIMAL(10, 2) CHECK (Valor >= 0)," +
-                "Data DATE," +
-                "Id_Aluno INT," +
-                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL" +
-                ")";
-        jdbcTemplate.execute(sql);
-    }
-
-    // Criar tabela Proj_Extensao
-    public void criarTabelaProjExtensao() {
-        String sql = "CREATE TABLE IF NOT EXISTS Proj_Extensao (" +
-                "Id_Proj INT PRIMARY KEY AUTO_INCREMENT," +
-                "Nome VARCHAR(255)," +
-                "Descricao VARCHAR(255)," +
-                "Id_Prof INT," +
-                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE SET NULL" +
-                ")";
-        jdbcTemplate.execute(sql);
-    }
-
-    // Criar tabela Conselho
     public void criarTabelaConselho() {
         String sql = "CREATE TABLE IF NOT EXISTS Conselho (" +
                 "Id_Conselho INT PRIMARY KEY AUTO_INCREMENT," +
@@ -93,51 +87,42 @@ public class ConsultaRepository {
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Telefone
-    public void criarTabelaTelefone() {
-        String sql = "CREATE TABLE IF NOT EXISTS Telefone (" +
-                "Numero VARCHAR(20)," +
-                "Id_Aluno INT," +
-                "Id_Prof INT," +
-                "PRIMARY KEY (Numero)," +
-                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE," +
-                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE" +
+    // Grupo 2: Tabelas que dependem do Grupo 1
+
+    public void criarTabelaEfetivado() {
+        String sql = "CREATE TABLE IF NOT EXISTS Efetivado (" +
+                "Id_Prof INT PRIMARY KEY," +
+                "Salario DECIMAL(10, 2) NOT NULL," +
+                "Data_Concurso DATE," +
+                "Regime VARCHAR(50)," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON UPDATE CASCADE ON DELETE CASCADE" +
                 ")";
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Email
-    public void criarTabelaEmail() {
-        String sql = "CREATE TABLE IF NOT EXISTS Email (" +
-                "Email VARCHAR(255) PRIMARY KEY," +
-                "Id_Aluno INT," +
-                "Id_Prof INT," +
-                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE," +
-                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE" +
+    public void criarTabelaTemporario() {
+        String sql = "CREATE TABLE IF NOT EXISTS Temporario (" +
+                "Id_Prof INT PRIMARY KEY," +
+                "Remuneracao DECIMAL(10, 2)," +
+                "Inicio DATE," +
+                "Fim DATE," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON UPDATE CASCADE ON DELETE CASCADE" +
                 ")";
         jdbcTemplate.execute(sql);
     }
-    // Criar tabela Aluno
-    public void criarTabelaAluno() {
-        String sql = "CREATE TABLE IF NOT EXISTS Aluno (" +
-                "Id_Aluno INT PRIMARY KEY AUTO_INCREMENT," +
-                "Nome VARCHAR(255) NOT NULL," +
-                "Sexo CHAR(1) CHECK (Sexo IN ('M','F'))," +
-                "Idade INT CHECK (Idade >= 16)," +
-                "Num INT," +
-                "CEP VARCHAR(9)," +
-                "Rua VARCHAR(255)," +
-                "Media DECIMAL(4,2)," +
-                "Frequencia DECIMAL(5,2) DEFAULT 100 CHECK (Frequencia BETWEEN 0 AND 100)," +
-                "Monitor INT NULL," +
-                "Monitorado INT NULL," +
-                "FOREIGN KEY (Monitor) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL ON UPDATE CASCADE," +
-                "FOREIGN KEY (Monitorado) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE ON UPDATE CASCADE" +
+    
+    public void criarTabelaProjExtensao() {
+        String sql = "CREATE TABLE IF NOT EXISTS Proj_Extensao (" +
+                "Id_Proj INT PRIMARY KEY AUTO_INCREMENT," +
+                "Nome VARCHAR(255)," +
+                "Descricao VARCHAR(255)," +
+                "Id_Prof INT," +
+                // Corrigido para "Opção 2": referencia Professor, não Efetivado
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE SET NULL" +
                 ")";
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Pesquisa
     public void criarTabelaPesquisa() {
         String sql = "CREATE TABLE IF NOT EXISTS Pesquisa (" +
                 "Id_Pesquisa INT PRIMARY KEY AUTO_INCREMENT," +
@@ -151,59 +136,134 @@ public class ConsultaRepository {
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Professor
-    public void criarTabelaProfessor() {
-        String sql = "CREATE TABLE IF NOT EXISTS Professor (" +
-                "Id_Prof INT PRIMARY KEY AUTO_INCREMENT," +
-                "CPF VARCHAR(14) UNIQUE," +
-                "Nome VARCHAR(255) NOT NULL," +
-                "Rua VARCHAR(255)," +
-                "Num INT," +
-                "CEP VARCHAR(9)" +
+    public void criarTabelaPagamento() {
+        String sql = "CREATE TABLE IF NOT EXISTS Pagamento (" +
+                "Id_Pagamento INT PRIMARY KEY AUTO_INCREMENT," +
+                "Status VARCHAR(50) DEFAULT 'Pendente' CHECK (Status IN ('Pendente','Pago','Atrasado'))," +
+                "Valor DECIMAL(10, 2) CHECK (Valor >= 0)," +
+                "Data DATE," +
+                "Id_Aluno INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL" +
                 ")";
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Efetivado
-    public void criarTabelaEfetivado() {
-        String sql = "CREATE TABLE IF NOT EXISTS Efetivado (" +
-                "Id_Prof INT PRIMARY KEY," +
-                "Salario DECIMAL(10, 2) NOT NULL," +
-                "Data_Concurso DATE," +
-                "Regime VARCHAR(50)," +
-                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON UPDATE CASCADE ON DELETE CASCADE" +
+    public void criarTabelaTelefone() {
+        String sql = "CREATE TABLE IF NOT EXISTS Telefone (" +
+                "Numero VARCHAR(20)," +
+                "Id_Aluno INT," +
+                "Id_Prof INT," +
+                "PRIMARY KEY (Numero)," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE" +
                 ")";
         jdbcTemplate.execute(sql);
     }
 
-    // Criar tabela Temporario
-    public void criarTabelaTemporario() {
-        String sql = "CREATE TABLE IF NOT EXISTS Temporario (" +
-                "Id_Prof INT PRIMARY KEY," +
-                "Remuneracao DECIMAL(10, 2)," +
-                "Inicio DATE," +
-                "Fim DATE," +
-                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON UPDATE CASCADE ON DELETE CASCADE" +
+    public void criarTabelaEmail() {
+        String sql = "CREATE TABLE IF NOT EXISTS Email (" +
+                "Email VARCHAR(255) PRIMARY KEY," +
+                "Id_Aluno INT," +
+                "Id_Prof INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE" +
                 ")";
         jdbcTemplate.execute(sql);
     }
 
-    // ========== OPERAÇÕES CRUD PARA ALUNOS ==========
+    public void criarTabelaMatricula() {
+        String sql = "CREATE TABLE IF NOT EXISTS Matricula (" +
+                "Id_Matricula INT PRIMARY KEY AUTO_INCREMENT," +
+                "Data DATE," +
+                "Id_Aluno INT," +
+                "Id_Turma INT," + // Adicionado
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL," +
+                "FOREIGN KEY (Id_Turma) REFERENCES Turma(Id_Turma) ON DELETE SET NULL" + // Adicionado
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    public void criarTabelaAvaliacao() {
+        String sql = "CREATE TABLE IF NOT EXISTS Avaliacao (" +
+                "Id_Avalia INT PRIMARY KEY AUTO_INCREMENT," +
+                "Valor DECIMAL(4, 2) CHECK (Valor >= 0 AND Valor <= 10)," +
+                "Data DATE," +
+                "Id_Aluno INT," +
+                "Id_Disc INT," +
+                "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL," +
+                "FOREIGN KEY (Id_Disc) REFERENCES Disciplina(Id_Disc) ON DELETE SET NULL" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // Grupo 3: Tabelas de Ligação (dependem do Grupo 1 e 2)
+    
+    public void criarTabelaMonitora() {
+        String sql = "CREATE TABLE IF NOT EXISTS Monitora (" +
+                "Id_Monitor INT," +
+                "Id_Monitorado INT," +
+                "PRIMARY KEY (Id_Monitor, Id_Monitorado)," +
+                "FOREIGN KEY (Id_Monitor) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE ON UPDATE CASCADE," +
+                "FOREIGN KEY (Id_Monitorado) REFERENCES Aluno(Id_Aluno) ON DELETE CASCADE ON UPDATE CASCADE" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    public void criarTabelaOferta() {
+        String sql = "CREATE TABLE IF NOT EXISTS Oferta (" +
+                "Id_Prof INT," +
+                "Id_Turma INT," +
+                "Id_Disc INT," +
+                "PRIMARY KEY (Id_Prof, Id_Turma, Id_Disc)," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE," +
+                "FOREIGN KEY (Id_Turma) REFERENCES Turma(Id_Turma) ON DELETE CASCADE," +
+                "FOREIGN KEY (Id_Disc) REFERENCES Disciplina(Id_Disc) ON DELETE CASCADE" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    public void criarTabelaUtiliza() {
+        String sql = "CREATE TABLE IF NOT EXISTS Utiliza (" +
+                "Id_Turma INT," +
+                "Id_Recurso INT," +
+                "Data DATE NOT NULL," +
+                "Hora TIME," +
+                "Observacao VARCHAR(255)," +
+                "PRIMARY KEY (Id_Turma, Id_Recurso, Data)," +
+                "FOREIGN KEY (Id_Turma) REFERENCES Turma(Id_Turma)," +
+                "FOREIGN KEY (Id_Recurso) REFERENCES Recurso(Id_Recurso)" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    public void criarTabelaParticipa() {
+        String sql = "CREATE TABLE IF NOT EXISTS Participa (" +
+                "Id_Prof INT," +
+                "Id_Conselho INT," +
+                "PRIMARY KEY (Id_Prof, Id_Conselho)," +
+                "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE CASCADE," +
+                "FOREIGN KEY (Id_Conselho) REFERENCES Conselho(Id_Conselho) ON DELETE CASCADE" +
+                ")";
+        jdbcTemplate.execute(sql);
+    }
+
+    // ========== OPERAÇÕES CRUD PARA ALUNOS (Corrigido) ==========
     
     // Inserir novo aluno
     public int inserirAluno(Aluno aluno) {
-        String sql = "INSERT INTO Aluno (Nome, Sexo, Idade, Num, CEP, Rua, Media, Frequencia, Monitor, Monitorado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Aluno (Nome, Sexo, Data_Nasc, Idade, Num, CEP, Rua, Media, Frequencia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         return jdbcTemplate.update(sql, 
             aluno.getNome(), 
             aluno.getSexo(), 
+            aluno.getDataNasc(), // Adicionado
             aluno.getIdade(), 
             aluno.getNum(), 
             aluno.getCep(), 
             aluno.getRua(), 
             aluno.getMedia(), 
-            aluno.getFrequencia(), 
-            aluno.getMonitor(), 
-            aluno.getMonitorado());
+            aluno.getFrequencia()
+            // monitor e monitorado removidos
+        );
     }
 
     // Buscar todos os alunos
@@ -224,19 +284,22 @@ public class ConsultaRepository {
 
     // Atualizar aluno
     public int atualizarAluno(Aluno aluno) {
-        String sql = "UPDATE Aluno SET Nome = ?, Sexo = ?, Idade = ?, Num = ?, CEP = ?, Rua = ?, Media = ?, Frequencia = ?, Monitor = ?, Monitorado = ? WHERE Id_Aluno = ?";
+        // Nota: Esta query de update é simplificada.
+        // Em um sistema real, você faria updates parciais (só o que mudou).
+        String sql = "UPDATE Aluno SET Nome = ?, Sexo = ?, Data_Nasc = ?, Idade = ?, Num = ?, CEP = ?, Rua = ?, Media = ?, Frequencia = ? WHERE Id_Aluno = ?";
         return jdbcTemplate.update(sql, 
             aluno.getNome(), 
             aluno.getSexo(), 
+            aluno.getDataNasc(), // Adicionado
             aluno.getIdade(), 
             aluno.getNum(), 
             aluno.getCep(), 
             aluno.getRua(), 
             aluno.getMedia(), 
-            aluno.getFrequencia(), 
-            aluno.getMonitor(), 
-            aluno.getMonitorado(),
-            aluno.getIdAluno());
+            aluno.getFrequencia(),
+            aluno.getIdAluno()
+            // monitor e monitorado removidos
+        );
     }
 
     // Deletar aluno por ID
@@ -245,16 +308,16 @@ public class ConsultaRepository {
         return jdbcTemplate.update(sql, id);
     }
 
-    // ========== OPERAÇÕES CRUD PARA DISCIPLINAS ==========
+    // ========== OPERAÇÕES CRUD PARA DISCIPLINAS (Corrigido) ==========
     
     // Inserir nova disciplina
     public int inserirDisciplina(Disciplina disciplina) {
-        String sql = "INSERT INTO Disciplina (Nome, Carga_Horaria, Id_Aluno, Id_Turma) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Disciplina (Nome, Carga_Horaria) VALUES (?, ?)";
         return jdbcTemplate.update(sql, 
             disciplina.getNome(), 
-            disciplina.getCargaHoraria(), 
-            disciplina.getIdAluno(), 
-            disciplina.getIdTurma());
+            disciplina.getCargaHoraria()
+            // idAluno e idTurma removidos
+        );
     }
 
     // Buscar todas as disciplinas
@@ -275,13 +338,13 @@ public class ConsultaRepository {
 
     // Atualizar disciplina
     public int atualizarDisciplina(Disciplina disciplina) {
-        String sql = "UPDATE Disciplina SET Nome = ?, Carga_Horaria = ?, Id_Aluno = ?, Id_Turma = ? WHERE Id_Disc = ?";
+        String sql = "UPDATE Disciplina SET Nome = ?, Carga_Horaria = ? WHERE Id_Disc = ?";
         return jdbcTemplate.update(sql, 
             disciplina.getNome(), 
-            disciplina.getCargaHoraria(), 
-            disciplina.getIdAluno(), 
-            disciplina.getIdTurma(),
-            disciplina.getIdDisc());
+            disciplina.getCargaHoraria(),
+            disciplina.getIdDisc()
+            // idAluno e idTurma removidos
+        );
     }
 
     // Deletar disciplina por ID
@@ -290,7 +353,7 @@ public class ConsultaRepository {
         return jdbcTemplate.update(sql, id);
     }
 
-    // ========== CONSULTAS ESTATÍSTICAS PARA DASHBOARD ==========
+    // ========== CONSULTAS ESTATÍSTICAS (Sem alterações) ==========
     
     // Total de alunos cadastrados
     public int contarTotalAlunos() {
@@ -315,8 +378,29 @@ public class ConsultaRepository {
         String sql = "SELECT COUNT(*) FROM Aluno WHERE Frequencia < 75";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
+    
+    // Taxa de aprovação (alunos com média >= 7)
+    public Double calcularTaxaAprovacao() {
+        String sql = """
+            SELECT 
+                (COUNT(CASE WHEN Media >= 7 THEN 1 END) * 100.0 / COUNT(*)) as taxa_aprovacao
+            FROM Aluno 
+            WHERE Media > 0
+        """;
+        return jdbcTemplate.queryForObject(sql, Double.class);
+    }
 
-    // Distribuição por sexo
+    // ... (Restante dos métodos de consulta estatística, que parecem corretos e 
+    // devem funcionar se as tabelas referenciadas (Aluno, Disciplina, Avaliacao, Pagamento, Pesquisa) 
+    // estiverem populadas com dados) ...
+    
+    // (Cole o restante dos seus métodos de consulta aqui... 
+    // obterDistribuicaoPorSexo, obterTopDisciplinasCargaHoraria, etc.)
+    
+    // ========== COLE O RESTANTE DOS SEUS MÉTODOS DE CONSULTA AQUI ==========
+    // (Os métodos de consulta complexos e de gráficos que você já tinha)
+    
+     // Distribuição por sexo
     public List<ConsultaResultadoDTO> obterDistribuicaoPorSexo() {
         String sql = "SELECT Sexo as descricao, COUNT(*) as valor FROM Aluno GROUP BY Sexo";
         return jdbcTemplate.query(sql, (rs, rowNum) -> 
@@ -355,17 +439,6 @@ public class ConsultaRepository {
             new ConsultaResultadoDTO(rs.getString("descricao"), rs.getInt("valor")));
     }
 
-    // Taxa de aprovação (alunos com média >= 7)
-    public Double calcularTaxaAprovacao() {
-        String sql = """
-            SELECT 
-                (COUNT(CASE WHEN Media >= 7 THEN 1 END) * 100.0 / COUNT(*)) as taxa_aprovacao
-            FROM Aluno 
-            WHERE Media > 0
-        """;
-        return jdbcTemplate.queryForObject(sql, Double.class);
-    }
-
     // Alunos com melhor desempenho (top 10)
     public List<Aluno> obterTopAlunos() {
         String sql = "SELECT * FROM Aluno WHERE Media > 0 ORDER BY Media DESC LIMIT 10";
@@ -385,7 +458,10 @@ public class ConsultaRepository {
                 av.Valor as Nota_Disciplina,
                 av.Data as Data_Avaliacao
             FROM Aluno a
-            LEFT JOIN Disciplina d ON a.Id_Aluno = d.Id_Aluno
+            JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
+            JOIN Turma t ON m.Id_Turma = t.Id_Turma
+            JOIN Oferta o ON t.Id_Turma = o.Id_Turma
+            JOIN Disciplina d ON o.Id_Disc = d.Id_Disc
             LEFT JOIN Avaliacao av ON a.Id_Aluno = av.Id_Aluno AND d.Id_Disc = av.Id_Disc
             WHERE a.Media > 0
             ORDER BY a.Media DESC, d.Nome
@@ -437,8 +513,8 @@ public class ConsultaRepository {
                 COUNT(CASE WHEN av.Valor < 7 THEN 1 END) as Reprovados,
                 ROUND((COUNT(CASE WHEN av.Valor >= 7 THEN 1 END) * 100.0 / COUNT(av.Id_Avalia)), 2) as Taxa_Aprovacao
             FROM Disciplina d
-            LEFT JOIN Aluno a ON d.Id_Aluno = a.Id_Aluno
             LEFT JOIN Avaliacao av ON d.Id_Disc = av.Id_Disc
+            LEFT JOIN Aluno a ON av.Id_Aluno = a.Id_Aluno
             GROUP BY d.Id_Disc, d.Nome, d.Carga_Horaria
             HAVING COUNT(av.Id_Avalia) > 0
             ORDER BY Media_Disciplina DESC
@@ -462,19 +538,17 @@ public class ConsultaRepository {
                     WHEN a.Media >= 7 AND a.Frequencia < 75 THEN 'REPROVADO POR FREQUÊNCIA'
                     ELSE 'REPROVADO POR NOTA E FREQUÊNCIA'
                 END as Situacao_Academica,
-                COUNT(DISTINCT d.Id_Disc) as Total_Disciplinas,
+                COUNT(DISTINCT m.Id_Turma) as Total_Turmas,
                 COUNT(av.Id_Avalia) as Total_Avaliacoes,
                 COALESCE(SUM(p.Valor), 0) as Total_Pagamentos,
-                CASE 
-                    WHEN p.Status = 'Pago' THEN 'EM DIA'
-                    WHEN p.Status = 'Pendente' THEN 'PENDENTE'
-                    ELSE 'EM ATRASO'
-                END as Situacao_Financeira
+                (SELECT GROUP_CONCAT(DISTINCT p.Status SEPARATOR ', ') 
+                 FROM Pagamento p 
+                 WHERE p.Id_Aluno = a.Id_Aluno) as Situacao_Financeira
             FROM Aluno a
-            LEFT JOIN Disciplina d ON a.Id_Aluno = d.Id_Aluno
+            LEFT JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
             LEFT JOIN Avaliacao av ON a.Id_Aluno = av.Id_Aluno
             LEFT JOIN Pagamento p ON a.Id_Aluno = p.Id_Aluno
-            GROUP BY a.Id_Aluno, a.Nome, a.Sexo, a.Idade, a.Media, a.Frequencia, p.Status
+            GROUP BY a.Id_Aluno, a.Nome, a.Sexo, a.Idade, a.Media, a.Frequencia
             ORDER BY a.Media DESC, a.Frequencia DESC
         """;
         return jdbcTemplate.queryForList(sql);
@@ -486,8 +560,8 @@ public class ConsultaRepository {
             SELECT 
                 p.Nome as Nome_Professor,
                 p.CPF,
-                COUNT(DISTINCT d.Id_Disc) as Disciplinas_Ministradas,
-                COUNT(DISTINCT a.Id_Aluno) as Alunos_Atendidos,
+                COUNT(DISTINCT o.Id_Disc) as Disciplinas_Ministradas,
+                COUNT(DISTINCT m.Id_Aluno) as Alunos_Atendidos,
                 AVG(a.Media) as Media_Alunos,
                 AVG(a.Frequencia) as Frequencia_Media_Alunos,
                 COUNT(av.Id_Avalia) as Total_Avaliacoes,
@@ -495,9 +569,11 @@ public class ConsultaRepository {
                 COUNT(CASE WHEN av.Valor >= 7 THEN 1 END) as Aprovacoes,
                 ROUND((COUNT(CASE WHEN av.Valor >= 7 THEN 1 END) * 100.0 / COUNT(av.Id_Avalia)), 2) as Taxa_Aprovacao_Professor
             FROM Professor p
-            LEFT JOIN Disciplina d ON p.Id_Prof = d.Id_Prof
-            LEFT JOIN Aluno a ON d.Id_Aluno = a.Id_Aluno
-            LEFT JOIN Avaliacao av ON d.Id_Disc = av.Id_Disc
+            LEFT JOIN Oferta o ON p.Id_Prof = o.Id_Prof
+            LEFT JOIN Turma t ON o.Id_Turma = t.Id_Turma
+            LEFT JOIN Matricula m ON t.Id_Turma = m.Id_Turma
+            LEFT JOIN Aluno a ON m.Id_Aluno = a.Id_Aluno
+            LEFT JOIN Avaliacao av ON a.Id_Aluno = av.Id_Aluno AND o.Id_Disc = av.Id_Disc
             WHERE p.Id_Prof IS NOT NULL
             GROUP BY p.Id_Prof, p.Nome, p.CPF
             HAVING COUNT(av.Id_Avalia) > 0
@@ -549,11 +625,12 @@ public class ConsultaRepository {
     public List<Map<String, Object>> obterFrequenciaVsDisciplinas() {
         String sql = """
             SELECT 
-                COUNT(d.Id_Disc) as x,
+                p.Qtd_Disciplinas as x,
                 a.Frequencia as y
             FROM Aluno a
-            LEFT JOIN Disciplina d ON a.Id_Aluno = d.Id_Aluno
-            GROUP BY a.Id_Aluno, a.Frequencia
+            LEFT JOIN Pesquisa p ON a.Id_Aluno = p.Id_Aluno
+            WHERE p.Qtd_Disciplinas IS NOT NULL
+            GROUP BY a.Id_Aluno, a.Frequencia, p.Qtd_Disciplinas
         """;
         return jdbcTemplate.queryForList(sql);
     }
@@ -575,13 +652,13 @@ public class ConsultaRepository {
         String sql = """
             SELECT 
                 'Com Email' as descricao,
-                COUNT(*) as valor
+                COUNT(DISTINCT a.Id_Aluno) as valor
             FROM Aluno a
             INNER JOIN Email e ON a.Id_Aluno = e.Id_Aluno
             UNION ALL
             SELECT 
                 'Sem Email' as descricao,
-                COUNT(*) as valor
+                COUNT(a.Id_Aluno) as valor
             FROM Aluno a
             LEFT JOIN Email e ON a.Id_Aluno = e.Id_Aluno
             WHERE e.Id_Aluno IS NULL
@@ -604,13 +681,13 @@ public class ConsultaRepository {
         String sql = """
             SELECT 
                 'Com Telefone' as descricao,
-                COUNT(*) as valor
+                COUNT(DISTINCT a.Id_Aluno) as valor
             FROM Aluno a
             INNER JOIN Telefone t ON a.Id_Aluno = t.Id_Aluno
             UNION ALL
             SELECT 
                 'Sem Telefone' as descricao,
-                COUNT(*) as valor
+                COUNT(a.Id_Aluno) as valor
             FROM Aluno a
             LEFT JOIN Telefone t ON a.Id_Aluno = t.Id_Aluno
             WHERE t.Id_Aluno IS NULL
@@ -622,13 +699,13 @@ public class ConsultaRepository {
         String sql = """
             SELECT 
                 'Com Projetos' as descricao,
-                COUNT(*) as valor
+                COUNT(DISTINCT a.Id_Aluno) as valor
             FROM Aluno a
             INNER JOIN Proj_Extensao pe ON a.Id_Aluno = pe.Id_Prof
             UNION ALL
             SELECT 
                 'Sem Projetos' as descricao,
-                COUNT(*) as valor
+                COUNT(a.Id_Aluno) as valor
             FROM Aluno a
             LEFT JOIN Proj_Extensao pe ON a.Id_Aluno = pe.Id_Prof
             WHERE pe.Id_Prof IS NULL
@@ -706,21 +783,21 @@ public class ConsultaRepository {
         String sql = """
             SELECT 
                 'Monitor' as descricao,
-                COUNT(*) as valor
-            FROM Aluno
-            WHERE Monitor IS NOT NULL
+                COUNT(DISTINCT Id_Monitor) as valor
+            FROM Monitora
             UNION ALL
             SELECT 
                 'Monitorado' as descricao,
-                COUNT(*) as valor
-            FROM Aluno
-            WHERE Monitorado IS NOT NULL
+                COUNT(DISTINCT Id_Monitorado) as valor
+            FROM Monitora
+            WHERE Id_Monitorado NOT IN (SELECT DISTINCT Id_Monitor FROM Monitora)
             UNION ALL
             SELECT 
-                'Sem Monitoria' as descricao,
-                COUNT(*) as valor
+                'Não Participa' as descricao,
+                (SELECT COUNT(*) FROM Aluno) - 
+                (SELECT COUNT(DISTINCT Id_Monitor) + COUNT(DISTINCT Id_Monitorado) FROM Monitora WHERE Id_Monitorado NOT IN (SELECT DISTINCT Id_Monitor FROM Monitora)) as valor
             FROM Aluno
-            WHERE Monitor IS NULL AND Monitorado IS NULL
+            LIMIT 1
         """;
         return jdbcTemplate.queryForList(sql);
     }
