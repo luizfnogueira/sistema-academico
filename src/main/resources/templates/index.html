@@ -176,6 +176,115 @@
             <button onclick="criarTabelas()" class="consulta-btn">Criar Tabelas do Banco</button>
             <div id="resultado-criacao" style="margin-top: 1rem;"></div>
         </div>
+        <div class="form-grid" style="margin-top: 2rem;">
+            <h3>Inicializar Estruturas SQL Avançadas</h3>
+            <p>Execute este comando para criar índices, views, funções, procedimentos e triggers:</p>
+            <button onclick="inicializarEstruturasAvancadas()" class="consulta-btn">Inicializar Estruturas Avançadas</button>
+            <div id="resultado-avancado" style="margin-top: 1rem;"></div>
+        </div>
+    </section>
+
+    <section class="card card-wide">
+        <h2>🔍 Consultas SQL Avançadas</h2>
+        
+        <div class="form-grid">
+            <h3>Consultas</h3>
+            <button onclick="consultarProfessoresSemOfertas()" class="consulta-btn">Professores sem Ofertas</button>
+            <button onclick="consultarAlunosEProfessoresEmails()" class="consulta-btn">Alunos e Professores com Emails</button>
+            <button onclick="consultarAlunosAcimaMedia()" class="consulta-btn">Alunos Acima da Média</button>
+            <button onclick="consultarAlunosTurmas2023()" class="consulta-btn">Alunos em Turmas de 2023</button>
+            <div id="resultado-consultas" style="margin-top: 1rem;"></div>
+        </div>
+    </section>
+
+    <section class="card card-wide">
+        <h2>📋 Views</h2>
+        
+        <div class="form-grid">
+            <h3>Detalhes Acadêmicos do Aluno</h3>
+            <button onclick="consultarViewDetalhesAcademicos()" class="consulta-btn">Ver Todos os Alunos</button>
+            <label>
+                Buscar por ID do Aluno:
+                <input type="number" id="idAlunoView" placeholder="ID do Aluno" style="width: 150px;">
+                <button onclick="consultarViewDetalhesAcademicosPorId()" class="consulta-btn">Buscar</button>
+            </label>
+            <div id="resultado-view-aluno" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="form-grid" style="margin-top: 2rem;">
+            <h3>Perfil Completo do Professor</h3>
+            <button onclick="consultarViewPerfilProfessor()" class="consulta-btn">Ver Todos os Professores</button>
+            <label>
+                Buscar por ID do Professor:
+                <input type="number" id="idProfView" placeholder="ID do Professor" style="width: 150px;">
+                <button onclick="consultarViewPerfilProfessorPorId()" class="consulta-btn">Buscar</button>
+            </label>
+            <div id="resultado-view-professor" style="margin-top: 1rem;"></div>
+        </div>
+    </section>
+
+    <section class="card card-wide">
+        <h2>⚙️ Funções SQL</h2>
+        
+        <div class="form-grid">
+            <h3>Situação do Aluno</h3>
+            <label>
+                ID do Aluno:
+                <input type="number" id="idAlunoFuncao" placeholder="ID do Aluno" required>
+                <button onclick="consultarSituacaoAluno()" class="consulta-btn">Consultar Situação</button>
+            </label>
+            <div id="resultado-funcao-situacao" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="form-grid" style="margin-top: 2rem;">
+            <h3>Calcular Média por Disciplina</h3>
+            <label>
+                ID da Disciplina:
+                <input type="number" id="idDisciplinaFuncao" placeholder="ID Disciplina" required>
+            </label>
+            <label>
+                ID do Aluno:
+                <input type="number" id="idAlunoMediaFuncao" placeholder="ID Aluno" required>
+            </label>
+            <button onclick="calcularMediaDisciplina()" class="consulta-btn">Calcular Média</button>
+            <div id="resultado-funcao-media" style="margin-top: 1rem;"></div>
+        </div>
+    </section>
+
+    <section class="card card-wide">
+        <h2>🔄 Procedimentos SQL</h2>
+        
+        <div class="form-grid">
+            <h3>Atualizar Frequência do Aluno</h3>
+            <label>
+                ID do Aluno:
+                <input type="number" id="idAlunoProcedimento" placeholder="ID do Aluno" required>
+            </label>
+            <label>
+                Nova Frequência (0-100):
+                <input type="number" id="frequenciaNova" placeholder="Frequência" min="0" max="100" step="0.1" required>
+            </label>
+            <button onclick="atualizarFrequenciaAluno()" class="consulta-btn">Atualizar Frequência</button>
+            <div id="resultado-procedimento-frequencia" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="form-grid" style="margin-top: 2rem;">
+            <h3>Contar Conselhos por Professor</h3>
+            <button onclick="contarConselhosPorProfessor()" class="consulta-btn">Executar Contagem</button>
+            <button onclick="consultarResumoConselhos()" class="consulta-btn">Ver Resumo</button>
+            <div id="resultado-procedimento-conselhos" style="margin-top: 1rem;"></div>
+        </div>
+    </section>
+
+    <section class="card card-wide">
+        <h2>📝 Logs e Auditoria</h2>
+        
+        <div class="form-grid">
+            <h3>Log de Pagamentos</h3>
+            <p>Visualize o histórico de pagamentos registrado automaticamente pelo trigger:</p>
+            <button onclick="consultarLogPagamento()" class="consulta-btn">Ver Log de Pagamentos</button>
+            <div id="resultado-log-pagamento" style="margin-top: 1rem;"></div>
+        </div>
     </section>
 
     <section class="card card-wide">
@@ -196,7 +305,7 @@
             </div>
             <div class="stat-card">
                 <h3>Taxa de Aprovação</h3>
-                <p class="stat-number" th:text="${#numbers.formatDecimal(estatisticas.taxaAprovacao, 1, 2)}%">0.0%</p>
+                <p class="stat-number" th:text="${#numbers.formatDecimal(estatisticas.taxaAprovacao, 1, 2) + '%'}">0.0%</p>
             </div>
             <div class="stat-card">
                 <h3>Freq. Baixa</h3>
