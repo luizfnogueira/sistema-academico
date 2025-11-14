@@ -93,22 +93,7 @@ public class SqlAvancadoController {
         }
     }
 
-    @GetMapping("/funcao/media-disciplina")
-    public ResponseEntity<Map<String, Object>> calcularMediaDisciplina(
-            @RequestParam int idDisciplina,
-            @RequestParam int idAluno) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Double media = sqlAvancadoService.calcularMediaDisciplina(idDisciplina, idAluno);
-            response.put("idDisciplina", idDisciplina);
-            response.put("idAluno", idAluno);
-            response.put("media", media);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
+    // Função calcularMediaDisciplina removida
 
     // ========== ENDPOINTS DE PROCEDIMENTOS ==========
     
@@ -150,12 +135,57 @@ public class SqlAvancadoController {
     public ResponseEntity<List<Map<String, Object>>> resumoConselhos() {
         return ResponseEntity.ok(sqlAvancadoService.consultarResumoConselhos());
     }
+    
+    @GetMapping("/conselhos-por-professor/{idProf}")
+    public ResponseEntity<List<Map<String, Object>>> conselhosPorProfessor(@PathVariable int idProf) {
+        return ResponseEntity.ok(sqlAvancadoService.consultarConselhosPorProfessor(idProf));
+    }
+    
+    @PostMapping("/conselhos")
+    public ResponseEntity<Map<String, Object>> criarConselho(
+            @RequestParam int idProf,
+            @RequestParam String descricao,
+            @RequestParam(required = false) String data) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            java.sql.Date dataSql;
+            if (data == null || data.isEmpty()) {
+                dataSql = new java.sql.Date(System.currentTimeMillis());
+            } else {
+                dataSql = java.sql.Date.valueOf(data);
+            }
+            sqlAvancadoService.criarConselhoEAtribuir(idProf, descricao, dataSql);
+            response.put("success", true);
+            response.put("message", "Conselho criado e atribuído com sucesso!");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 
     // ========== ENDPOINTS DE LOGS ==========
     
     @GetMapping("/log-pagamento")
     public ResponseEntity<List<Map<String, Object>>> logPagamento() {
         return ResponseEntity.ok(sqlAvancadoService.consultarLogPagamento());
+    }
+    
+    // ========== ENDPOINTS DE PROCEDIMENTOS ADICIONAIS ==========
+    
+    @GetMapping("/procedimento/media-turma/{idTurma}")
+    public ResponseEntity<Map<String, Object>> calcularMediaTurma(@PathVariable int idTurma) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Double media = sqlAvancadoService.calcularMediaTurma(idTurma);
+            response.put("idTurma", idTurma);
+            response.put("media", media);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }
 

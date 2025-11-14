@@ -2,6 +2,7 @@ package com.sistemaacademico.controller;
 
 import com.sistemaacademico.model.Aluno;
 import com.sistemaacademico.model.Disciplina;
+import com.sistemaacademico.model.Professor;
 import com.sistemaacademico.service.ConsultaService;
 import com.sistemaacademico.repository.ConsultaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,6 +201,76 @@ public class AlunoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao deletar disciplina: " + e.getMessage());
+        }
+    }
+
+    // ========== ENDPOINTS CRUD PARA PROFESSORES ==========
+    
+    @PostMapping("/professores")
+    public ResponseEntity<?> criarProfessor(@RequestBody Professor professor) {
+        try {
+            if (!consultaService.validarProfessor(professor)) {
+                return ResponseEntity.badRequest().body("Dados do professor inválidos");
+            }
+            Professor professorCriado = consultaService.criarProfessor(professor);
+            return ResponseEntity.status(HttpStatus.CREATED).body(professorCriado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar professor: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/professores")
+    public ResponseEntity<List<Professor>> listarProfessores() {
+        try {
+            List<Professor> professores = consultaService.listarProfessores();
+            return ResponseEntity.ok(professores);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/professores/{id}")
+    public ResponseEntity<Professor> buscarProfessorPorId(@PathVariable int id) {
+        try {
+            Professor professor = consultaService.buscarProfessorPorId(id);
+            if (professor != null) {
+                return ResponseEntity.ok(professor);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/professores/{id}")
+    public ResponseEntity<?> atualizarProfessor(@PathVariable int id, @RequestBody Professor professor) {
+        try {
+            if (!consultaService.validarProfessor(professor)) {
+                return ResponseEntity.badRequest().body("Dados do professor inválidos");
+            }
+            professor.setIdProf(id);
+            Professor professorAtualizado = consultaService.atualizarProfessor(professor);
+            return ResponseEntity.ok(professorAtualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar professor: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/professores/{id}")
+    public ResponseEntity<String> deletarProfessor(@PathVariable int id) {
+        try {
+            boolean deletado = consultaService.deletarProfessor(id);
+            if (deletado) {
+                return ResponseEntity.ok("Professor deletado com sucesso");
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao deletar professor: " + e.getMessage());
         }
     }
 

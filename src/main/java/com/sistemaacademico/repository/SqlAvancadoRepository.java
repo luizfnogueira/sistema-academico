@@ -92,25 +92,22 @@ public class SqlAvancadoRepository {
 
     // ========== VIEWS ==========
     
-    // Criar view vw_DetalhesAcademicosAluno
+    // Criar view vw_DetalhesAcademicosAluno (MODIFICADA: removido nome_disciplina, Nota_específica, nome_professor; adicionado telefone e sexo)
     public void criarViewDetalhesAcademicosAluno() {
         String sql = """
             CREATE OR REPLACE VIEW vw_DetalhesAcademicosAluno AS
             SELECT 
                 a.Nome AS Nome_Aluno,
                 a.Media AS Media_Geral,
+                a.Sexo AS Sexo_Aluno,
                 t.Nome AS Nome_Turma,
                 t.Ano AS Ano_Turma,
-                d.Nome AS Nome_Disciplina,
-                av.Valor AS Nota_Especifica,
-                p.Nome AS Nome_Professor
+                COALESCE(GROUP_CONCAT(DISTINCT tel.Numero SEPARATOR ', '), 'Sem telefone') AS Telefone_Aluno
             FROM Aluno a
             JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
             JOIN Turma t ON m.Id_Turma = t.Id_Turma
-            JOIN Oferta o ON t.Id_Turma = o.Id_Turma
-            JOIN Disciplina d ON o.Id_Disc = d.Id_Disc
-            JOIN Professor p ON o.Id_Prof = p.Id_Prof
-            LEFT JOIN Avaliacao av ON a.Id_Aluno = av.Id_Aluno AND d.Id_Disc = av.Id_Disc
+            LEFT JOIN Telefone tel ON a.Id_Aluno = tel.Id_Aluno
+            GROUP BY a.Id_Aluno, a.Nome, a.Media, a.Sexo, t.Nome, t.Ano
         """;
         jdbcTemplate.execute(sql);
     }
@@ -204,37 +201,7 @@ public class SqlAvancadoRepository {
         return jdbcTemplate.queryForObject(sql, String.class, idAluno);
     }
 
-    // Criar função calcularMediaDisciplina
-    public void criarFuncaoCalcularMediaDisciplina() {
-        try {
-            jdbcTemplate.execute("DROP FUNCTION IF EXISTS calcularMediaDisciplina");
-        } catch (Exception e) {
-            // Ignorar se não existir
-        }
-        
-        String sql = """
-            CREATE FUNCTION calcularMediaDisciplina(idDisciplina INT, idAluno INT)
-            RETURNS DECIMAL(4,2)
-            DETERMINISTIC
-            BEGIN
-                DECLARE media DECIMAL(4,2);
-                
-                SELECT COALESCE(AVG(Valor), 0) INTO media 
-                FROM Avaliacao a
-                WHERE a.Id_Disc = idDisciplina
-                AND a.Id_Aluno = idAluno;
-                
-                RETURN media;
-            END
-        """;
-        jdbcTemplate.execute(sql);
-    }
-
-    // Chamar função calcularMediaDisciplina
-    public Double chamarFuncaoCalcularMediaDisciplina(int idDisciplina, int idAluno) {
-        String sql = "SELECT calcularMediaDisciplina(?, ?)";
-        return jdbcTemplate.queryForObject(sql, Double.class, idDisciplina, idAluno);
-    }
+    // Função calcularMediaDisciplina REMOVIDA conforme solicitado
 
     // ========== PROCEDIMENTOS ==========
     
@@ -323,6 +290,37 @@ public class SqlAvancadoRepository {
         String sql = "SELECT * FROM Resumo_Conselhos";
         return jdbcTemplate.queryForList(sql);
     }
+    
+    // Consultar conselhos por Id_professor específico
+    public List<Map<String, Object>> consultarConselhosPorProfessor(int idProf) {
+        String sql = """
+            SELECT 
+                c.Id_Conselho,
+                c.Descricao,
+                c.Data,
+                p.Nome AS Nome_Professor
+            FROM Conselho c
+            JOIN Participa pa ON c.Id_Conselho = pa.Id_Conselho
+            JOIN Professor p ON pa.Id_Prof = p.Id_Prof
+            WHERE pa.Id_Prof = ?
+        """;
+        return jdbcTemplate.queryForList(sql, idProf);
+    }
+    
+    // Criar conselho e atribuir a professor
+    public int criarConselhoEAtribuir(int idProf, String descricao, java.sql.Date data) {
+        // Primeiro criar o conselho
+        String sqlConselho = "INSERT INTO Conselho (Descricao, Data, Id_Prof) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sqlConselho, descricao, data, idProf);
+        
+        // Obter o ID do conselho criado
+        String sqlId = "SELECT LAST_INSERT_ID()";
+        Integer idConselho = jdbcTemplate.queryForObject(sqlId, Integer.class);
+        
+        // Atribuir ao professor através da tabela Participa
+        String sqlParticipa = "INSERT INTO Participa (Id_Prof, Id_Conselho) VALUES (?, ?) ON DUPLICATE KEY UPDATE Id_Prof = Id_Prof";
+        return jdbcTemplate.update(sqlParticipa, idProf, idConselho);
+    }
 
     // ========== TRIGGERS ==========
     
@@ -359,9 +357,19 @@ public class SqlAvancadoRepository {
         jdbcTemplate.execute(sql);
     }
 
-    // Consultar Log_Pagamento
+    // Consultar Log_Pagamento (MODIFICADO: mostrar nome_aluno ao invés de Id_log)
     public List<Map<String, Object>> consultarLogPagamento() {
-        String sql = "SELECT * FROM Log_Pagamento ORDER BY Data_Registro DESC";
+        String sql = """
+            SELECT 
+                a.Nome AS Nome_Aluno,
+                lp.Id_Pagamento,
+                lp.Status,
+                lp.Data_Registro
+            FROM Log_Pagamento lp
+            JOIN Pagamento p ON lp.Id_Pagamento = p.Id_Pagamento
+            LEFT JOIN Aluno a ON p.Id_Aluno = a.Id_Aluno
+            ORDER BY lp.Data_Registro DESC
+        """;
         return jdbcTemplate.queryForList(sql);
     }
 
@@ -391,6 +399,46 @@ public class SqlAvancadoRepository {
         """;
         jdbcTemplate.execute(sql);
     }
+    
+    // Criar procedimento calcularMediaTurma
+    public void criarProcedimentoCalcularMediaTurma() {
+        try {
+            jdbcTemplate.execute("DROP PROCEDURE IF EXISTS calcularMediaTurma");
+        } catch (Exception e) {
+            // Ignorar se não existir
+        }
+        
+        String sql = """
+            CREATE PROCEDURE calcularMediaTurma(IN idTurma INT)
+            BEGIN
+                SELECT COALESCE(AVG(a.Media), 0) AS mediaTurma
+                FROM Aluno a
+                JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
+                WHERE m.Id_Turma = idTurma
+                AND a.Media IS NOT NULL
+                AND a.Media > 0;
+            END
+        """;
+        jdbcTemplate.execute(sql);
+    }
+    
+    // Chamar procedimento calcularMediaTurma
+    public Double chamarProcedimentoCalcularMediaTurma(int idTurma) {
+        // Usar query direta ao invés de procedure com OUT parameter
+        String sql = """
+            SELECT COALESCE(AVG(a.Media), 0) AS mediaTurma
+            FROM Aluno a
+            JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
+            WHERE m.Id_Turma = ?
+            AND a.Media IS NOT NULL
+            AND a.Media > 0
+        """;
+        try {
+            return jdbcTemplate.queryForObject(sql, Double.class, idTurma);
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
 
     // ========== MÉTODO PARA INICIALIZAR TUDO ==========
     
@@ -402,8 +450,9 @@ public class SqlAvancadoRepository {
             criarViewDetalhesAcademicosAluno();
             criarViewPerfilCompletoProfessor();
             criarFuncaoSituacaoAluno();
-            criarFuncaoCalcularMediaDisciplina();
+            // Função calcularMediaDisciplina removida
             criarProcedimentoUpdateFrequenciaAluno();
+            criarProcedimentoCalcularMediaTurma();
             criarProcedimentoContarConselhosPorProfessor();
             criarTriggerLogPagamento();
             criarTriggerRecalcularMediaGeralAluno();

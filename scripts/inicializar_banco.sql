@@ -262,23 +262,20 @@ CREATE TABLE IF NOT EXISTS Log_Pagamento (
 -- 6. CRIAR VIEWS
 -- ============================================================================
 
--- View: Detalhes Acadêmicos do Aluno
+-- View: Detalhes Acadêmicos do Aluno (MODIFICADA: removido nome_disciplina, Nota_específica, nome_professor; adicionado telefone e sexo)
 CREATE OR REPLACE VIEW vw_DetalhesAcademicosAluno AS
 SELECT 
     a.Nome AS Nome_Aluno,
     a.Media AS Media_Geral,
+    a.Sexo AS Sexo_Aluno,
     t.Nome AS Nome_Turma,
     t.Ano AS Ano_Turma,
-    d.Nome AS Nome_Disciplina,
-    av.Valor AS Nota_Especifica,
-    p.Nome AS Nome_Professor
+    COALESCE(GROUP_CONCAT(DISTINCT tel.Numero SEPARATOR ', '), 'Sem telefone') AS Telefone_Aluno
 FROM Aluno a
 JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
 JOIN Turma t ON m.Id_Turma = t.Id_Turma
-JOIN Oferta o ON t.Id_Turma = o.Id_Turma
-JOIN Disciplina d ON o.Id_Disc = d.Id_Disc
-JOIN Professor p ON o.Id_Prof = p.Id_Prof
-LEFT JOIN Avaliacao av ON a.Id_Aluno = av.Id_Aluno AND d.Id_Disc = av.Id_Disc;
+LEFT JOIN Telefone tel ON a.Id_Aluno = tel.Id_Aluno
+GROUP BY a.Id_Aluno, a.Nome, a.Media, a.Sexo, t.Nome, t.Ano;
 
 -- View: Perfil Completo do Professor
 CREATE OR REPLACE VIEW vw_PerfilCompletoProfessor AS
@@ -330,25 +327,7 @@ END$$
 
 DELIMITER ;
 
-DROP FUNCTION IF EXISTS calcularMediaDisciplina;
-
-DELIMITER $$
-
-CREATE FUNCTION calcularMediaDisciplina(idDisciplina INT, idAluno INT)
-RETURNS DECIMAL(4,2)
-DETERMINISTIC
-BEGIN
-    DECLARE media DECIMAL(4,2);
-    
-    SELECT COALESCE(AVG(Valor), 0) INTO media 
-    FROM Avaliacao a
-    WHERE a.Id_Disc = idDisciplina
-    AND a.Id_Aluno = idAluno;
-    
-    RETURN media;
-END$$
-
-DELIMITER ;
+-- Função calcularMediaDisciplina REMOVIDA conforme solicitado
 
 -- ============================================================================
 -- 8. CRIAR PROCEDIMENTOS
@@ -395,6 +374,22 @@ BEGIN
     UNTIL fim END REPEAT;
     
     CLOSE cur;
+END$$
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS calcularMediaTurma;
+
+DELIMITER $$
+
+CREATE PROCEDURE calcularMediaTurma(IN idTurma INT)
+BEGIN
+    SELECT COALESCE(AVG(a.Media), 0) AS mediaTurma
+    FROM Aluno a
+    JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
+    WHERE m.Id_Turma = idTurma
+    AND a.Media IS NOT NULL
+    AND a.Media > 0;
 END$$
 
 DELIMITER ;

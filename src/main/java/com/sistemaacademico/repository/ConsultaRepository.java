@@ -3,6 +3,7 @@ package com.sistemaacademico.repository;
 import org.springframework.stereotype.Repository;
 import com.sistemaacademico.model.Aluno;
 import com.sistemaacademico.model.Disciplina;
+import com.sistemaacademico.model.Professor;
 import com.sistemaacademico.dto.ConsultaResultadoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -350,6 +351,55 @@ public class ConsultaRepository {
     // Deletar disciplina por ID
     public int deletarDisciplina(int id) {
         String sql = "DELETE FROM Disciplina WHERE Id_Disc = ?";
+        return jdbcTemplate.update(sql, id);
+    }
+
+    // ========== OPERAÇÕES CRUD PARA PROFESSORES ==========
+    
+    // Inserir novo professor
+    public int inserirProfessor(Professor professor) {
+        String sql = "INSERT INTO Professor (Nome, CPF, Rua, Num, CEP) VALUES (?, ?, ?, ?, ?)";
+        return jdbcTemplate.update(sql, 
+            professor.getNome(), 
+            professor.getCpf(),
+            professor.getRua(),
+            professor.getNum(),
+            professor.getCep()
+        );
+    }
+
+    // Buscar todos os professores
+    public List<Professor> listarTodosProfessores() {
+        String sql = "SELECT * FROM Professor ORDER BY Nome";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Professor.class));
+    }
+
+    // Buscar professor por ID
+    public Professor buscarProfessorPorId(int id) {
+        String sql = "SELECT * FROM Professor WHERE Id_Prof = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Professor.class), id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // Atualizar professor
+    public int atualizarProfessor(Professor professor) {
+        String sql = "UPDATE Professor SET Nome = ?, CPF = ?, Rua = ?, Num = ?, CEP = ? WHERE Id_Prof = ?";
+        return jdbcTemplate.update(sql, 
+            professor.getNome(), 
+            professor.getCpf(),
+            professor.getRua(),
+            professor.getNum(),
+            professor.getCep(),
+            professor.getIdProf()
+        );
+    }
+
+    // Deletar professor por ID
+    public int deletarProfessor(int id) {
+        String sql = "DELETE FROM Professor WHERE Id_Prof = ?";
         return jdbcTemplate.update(sql, id);
     }
 

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.Map;
@@ -84,5 +85,37 @@ public class DashboardController {
         }
         
         return "index";
+    }
+    
+    // Endpoint REST para fornecer dados dos gráficos (atualização em tempo real)
+    @GetMapping("/api/dashboard/graficos")
+    public ResponseEntity<Map<String, Object>> obterDadosGraficos() {
+        Map<String, Object> dados = new HashMap<>();
+        try {
+            dados.put("frequenciaEstudoVsMedia", consultaService.obterMediaPorFrequenciaEstudo());
+            dados.put("estresseVsProjetos", consultaService.obterEstresseVsProjetos());
+            dados.put("suporteProfVsProjetos", consultaService.obterSuporteProfVsProjetos());
+            dados.put("frequenciaVsDisciplinas", consultaService.obterFrequenciaVsDisciplinas());
+            dados.put("valorVsMedia", consultaService.obterValorVsMedia());
+            dados.put("distribuicaoGenero", consultaService.obterDistribuicaoPorGenero());
+            dados.put("distribuicaoIdadeGrafico", consultaService.obterDistribuicaoIdadeGrafico());
+            dados.put("distribuicaoRecursos", consultaService.obterDistribuicaoUsoRecursos());
+            dados.put("dadosMonitoria", consultaService.obterDadosMonitoria());
+            dados.put("freqRecursosVsEstudo", consultaService.obterFreqRecursosVsEstudo());
+            return ResponseEntity.ok(dados);
+        } catch (Exception e) {
+            // Retornar listas vazias em caso de erro
+            dados.put("frequenciaEstudoVsMedia", Collections.emptyList());
+            dados.put("estresseVsProjetos", Collections.emptyList());
+            dados.put("suporteProfVsProjetos", Collections.emptyList());
+            dados.put("frequenciaVsDisciplinas", Collections.emptyList());
+            dados.put("valorVsMedia", Collections.emptyList());
+            dados.put("distribuicaoGenero", Collections.emptyList());
+            dados.put("distribuicaoIdadeGrafico", Collections.emptyList());
+            dados.put("distribuicaoRecursos", Collections.emptyList());
+            dados.put("dadosMonitoria", Collections.emptyList());
+            dados.put("freqRecursosVsEstudo", Collections.emptyList());
+            return ResponseEntity.ok(dados);
+        }
     }
 }

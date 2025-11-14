@@ -2,6 +2,7 @@ package com.sistemaacademico.service;
 
 import com.sistemaacademico.model.Aluno;
 import com.sistemaacademico.model.Disciplina;
+import com.sistemaacademico.model.Professor;
 import com.sistemaacademico.dto.ConsultaResultadoDTO;
 import com.sistemaacademico.repository.ConsultaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,44 @@ public class ConsultaService {
     public boolean deletarDisciplina(int id) {
         int linhasAfetadas = consultaRepository.deletarDisciplina(id);
         return linhasAfetadas > 0;
+    }
+
+    // ========== SERVIÇOS PARA PROFESSORES ==========
+    
+    public Professor criarProfessor(Professor professor) {
+        int linhasAfetadas = consultaRepository.inserirProfessor(professor);
+        if (linhasAfetadas > 0) {
+            return professor;
+        }
+        throw new RuntimeException("Erro ao criar professor");
+    }
+
+    public List<Professor> listarProfessores() {
+        return consultaRepository.listarTodosProfessores();
+    }
+
+    public Professor buscarProfessorPorId(int id) {
+        return consultaRepository.buscarProfessorPorId(id);
+    }
+
+    public Professor atualizarProfessor(Professor professor) {
+        int linhasAfetadas = consultaRepository.atualizarProfessor(professor);
+        if (linhasAfetadas > 0) {
+            return professor;
+        }
+        throw new RuntimeException("Erro ao atualizar professor");
+    }
+
+    public boolean deletarProfessor(int id) {
+        int linhasAfetadas = consultaRepository.deletarProfessor(id);
+        return linhasAfetadas > 0;
+    }
+
+    public boolean validarProfessor(Professor professor) {
+        if (professor.getNome() == null || professor.getNome().trim().isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     // ========== SERVIÇOS PARA DASHBOARD ==========

@@ -61,9 +61,7 @@ public class SqlAvancadoService {
         return sqlAvancadoRepository.chamarFuncaoSituacaoAluno(idAluno);
     }
 
-    public Double calcularMediaDisciplina(int idDisciplina, int idAluno) {
-        return sqlAvancadoRepository.chamarFuncaoCalcularMediaDisciplina(idDisciplina, idAluno);
-    }
+    // Função calcularMediaDisciplina removida
 
     // ========== SERVIÇOS DE PROCEDIMENTOS ==========
     
@@ -83,6 +81,22 @@ public class SqlAvancadoService {
     
     public List<Map<String, Object>> consultarLogPagamento() {
         return sqlAvancadoRepository.consultarLogPagamento();
+    }
+    
+    // ========== SERVIÇOS DE CONSELHOS ==========
+    
+    public List<Map<String, Object>> consultarConselhosPorProfessor(int idProf) {
+        return sqlAvancadoRepository.consultarConselhosPorProfessor(idProf);
+    }
+    
+    public int criarConselhoEAtribuir(int idProf, String descricao, java.sql.Date data) {
+        return sqlAvancadoRepository.criarConselhoEAtribuir(idProf, descricao, data);
+    }
+    
+    // ========== SERVIÇOS DE PROCEDIMENTOS ==========
+    
+    public Double calcularMediaTurma(int idTurma) {
+        return sqlAvancadoRepository.chamarProcedimentoCalcularMediaTurma(idTurma);
     }
 }
 

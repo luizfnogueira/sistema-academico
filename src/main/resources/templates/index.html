@@ -115,6 +115,76 @@
     </section>
 
     <section class="card">
+        <h2>Comandos para Professores</h2>
+        
+        <!-- Formulário para Criar Professor -->
+        <form class="form-grid" data-action="create-professor">
+            <h3>Criar Novo Professor</h3>
+            <label>
+                Nome:
+                <input type="text" name="nome" required>
+            </label>
+            <label>
+                CPF:
+                <input type="text" name="cpf" placeholder="000.000.000-00">
+            </label>
+            <label>
+                Rua:
+                <input type="text" name="rua">
+            </label>
+            <label>
+                Número:
+                <input type="number" name="num">
+            </label>
+            <label>
+                CEP:
+                <input type="text" name="cep" placeholder="00000-000">
+            </label>
+            <button type="submit">Criar Professor</button>
+        </form>
+
+        <!-- Formulário para Atualizar Professor -->
+        <form class="form-grid" data-action="update-professor">
+            <h3>Atualizar Professor</h3>
+            <label>
+                ID do Professor:
+                <input type="number" name="id" required>
+            </label>
+            <label>
+                Nome:
+                <input type="text" name="nome">
+            </label>
+            <label>
+                CPF:
+                <input type="text" name="cpf" placeholder="000.000.000-00">
+            </label>
+            <label>
+                Rua:
+                <input type="text" name="rua">
+            </label>
+            <label>
+                Número:
+                <input type="number" name="num">
+            </label>
+            <label>
+                CEP:
+                <input type="text" name="cep" placeholder="00000-000">
+            </label>
+            <button type="submit">Atualizar Professor</button>
+        </form>
+
+        <!-- Formulário para Deletar Professor -->
+        <form class="form-grid" data-action="delete-professor">
+            <h3>Deletar Professor</h3>
+            <label>
+                ID do Professor:
+                <input type="number" name="id" required>
+            </label>
+            <button type="submit" class="danger">Deletar Professor</button>
+        </form>
+    </section>
+
+    <section class="card">
         <h2>Comandos para Disciplinas</h2>
         
         <!-- Formulário para Criar Disciplina -->
@@ -236,19 +306,7 @@
             <div id="resultado-funcao-situacao" style="margin-top: 1rem;"></div>
         </div>
 
-        <div class="form-grid" style="margin-top: 2rem;">
-            <h3>Calcular Média por Disciplina</h3>
-            <label>
-                ID da Disciplina:
-                <input type="number" id="idDisciplinaFuncao" placeholder="ID Disciplina" required>
-            </label>
-            <label>
-                ID do Aluno:
-                <input type="number" id="idAlunoMediaFuncao" placeholder="ID Aluno" required>
-            </label>
-            <button onclick="calcularMediaDisciplina()" class="consulta-btn">Calcular Média</button>
-            <div id="resultado-funcao-media" style="margin-top: 1rem;"></div>
-        </div>
+        <!-- Função calcularMediaDisciplina removida conforme solicitado -->
     </section>
 
     <section class="card card-wide">
@@ -270,9 +328,41 @@
 
         <div class="form-grid" style="margin-top: 2rem;">
             <h3>Contar Conselhos por Professor</h3>
-            <button onclick="contarConselhosPorProfessor()" class="consulta-btn">Executar Contagem</button>
             <button onclick="consultarResumoConselhos()" class="consulta-btn">Ver Resumo</button>
+            <label>
+                Buscar conselhos por ID do Professor:
+                <input type="number" id="idProfConselhos" placeholder="ID do Professor" style="width: 150px;">
+                <button onclick="consultarConselhosPorProfessor()" class="consulta-btn">Buscar</button>
+            </label>
             <div id="resultado-procedimento-conselhos" style="margin-top: 1rem;"></div>
+        </div>
+        
+        <div class="form-grid" style="margin-top: 2rem;">
+            <h3>Calcular Média de Turma</h3>
+            <label>
+                ID da Turma:
+                <input type="number" id="idTurmaMedia" placeholder="ID da Turma" required>
+                <button onclick="calcularMediaTurma()" class="consulta-btn">Calcular Média</button>
+            </label>
+            <div id="resultado-media-turma" style="margin-top: 1rem;"></div>
+        </div>
+        
+        <div class="form-grid" style="margin-top: 2rem;">
+            <h3>Criar Conselho e Atribuir a Professor</h3>
+            <label>
+                ID do Professor:
+                <input type="number" id="idProfConselho" placeholder="ID do Professor" required>
+            </label>
+            <label>
+                Descrição do Conselho:
+                <input type="text" id="descricaoConselho" placeholder="Descrição" required>
+            </label>
+            <label>
+                Data (opcional, deixe vazio para data atual):
+                <input type="date" id="dataConselho">
+            </label>
+            <button onclick="criarConselho()" class="consulta-btn">Criar e Atribuir Conselho</button>
+            <div id="resultado-criar-conselho" style="margin-top: 1rem;"></div>
         </div>
     </section>
 
