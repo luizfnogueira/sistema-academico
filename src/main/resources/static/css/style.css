@@ -69,11 +69,22 @@ body {
     display: grid;
     gap: 1rem;
     padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(0, 102, 153, 0.02), rgba(253, 185, 19, 0.02));
+    transition: all 0.3s ease;
+}
+
+.form-grid:hover {
+    border-color: var(--secondary);
+    box-shadow: 0 4px 12px rgba(0, 102, 153, 0.1);
 }
 
 .form-grid h3 {
     color: var(--primary);
     font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.75rem;
 }
 
 label {
@@ -81,6 +92,12 @@ label {
     flex-direction: column;
     font-size: 0.9rem;
     gap: 0.4rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+label strong {
+    color: var(--primary);
 }
 
 input,
@@ -89,6 +106,19 @@ button {
     border-radius: 8px;
     border: 1px solid var(--border);
     padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+input,
+select {
+    background: white;
+    color: var(--text);
+}
+
+input::placeholder,
+select {
+    color: #999;
 }
 
 input:focus,
@@ -96,28 +126,52 @@ select:focus {
     border-color: var(--secondary);
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 102, 153, 0.15);
+    background: #fafbfc;
+}
+
+input:invalid {
+    border-color: #f44336;
+}
+
+input:valid:not(:placeholder-shown) {
+    border-color: #4caf50;
 }
 
 button {
-    background: var(--secondary);
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
     border: none;
     color: white;
     cursor: pointer;
     font-weight: 600;
-    transition: transform 0.1s ease, background 0.2s ease;
+    transition: transform 0.1s ease, background 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 102, 153, 0.2);
 }
 
 button:hover {
-    background: var(--primary);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, var(--primary), #004a7a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 153, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 102, 153, 0.2);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 button.danger {
-    background: #c62828;
+    background: linear-gradient(135deg, #d32f2f, #c62828);
+    box-shadow: 0 2px 8px rgba(198, 40, 40, 0.2);
 }
 
 button.danger:hover {
-    background: #8e0000;
+    background: linear-gradient(135deg, #c62828, #b71c1c);
+    box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
 }
 
 .consulta-list {
@@ -160,7 +214,7 @@ button.danger:hover {
     font-size: 0.85rem;
 }
 
-/* Estilos para estatísticas */
+ 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -189,7 +243,7 @@ button.danger:hover {
     margin: 0;
 }
 
-/* Estilos para mensagens de erro */
+ 
 .error-message {
     background: #ffebee;
     border: 1px solid #f44336;
@@ -219,7 +273,7 @@ button.danger:hover {
     text-decoration: underline;
 }
 
-/* Melhorias nas tabelas */
+ 
 .graficos-placeholder table {
     margin-top: 1rem;
     width: 100%;
@@ -245,7 +299,7 @@ button.danger:hover {
     background: rgba(0, 102, 153, 0.05);
 }
 
-/* Estilos para gráficos */
+ 
 .graficos-section {
     margin-top: 2rem;
     padding: 1.5rem;
@@ -279,7 +333,7 @@ button.danger:hover {
     height: auto;
 }
 
-/* Estilos para consultas complexas */
+ 
 .consultas-section {
     margin-top: 2rem;
     padding: 1.5rem;
@@ -355,7 +409,7 @@ button.danger:hover {
     background: rgba(0, 102, 153, 0.05);
 }
 
-/* Responsividade */
+ 
 @media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);

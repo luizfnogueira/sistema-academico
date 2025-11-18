@@ -27,15 +27,14 @@
     </head>
 <body>
     <header class="page-header">
-        <h1>Sistema Acadêmico</h1>
-        <p>Primeira versão do dashboard acadêmico com integração MySQL</p>
+    <h1>Sistema Acadêmico</h1>
     </header>
 
 <main class="layout">
     <section class="card">
         <h2>Comandos para Alunos</h2>
         
-        <!-- Formulário para Criar Aluno -->
+        
         <form class="form-grid" data-action="create-aluno">
             <h3>Criar Novo Aluno</h3>
             <label>
@@ -70,26 +69,10 @@
                 CEP:
                 <input type="text" name="cep" placeholder="00000-000">
             </label>
-            <label>
-                ID da Turma (opcional):
-                <input type="number" name="idTurma">
-            </label>
-            <label>
-                Responsável - Nome (opcional):
-                <input type="text" name="responsavelNome">
-            </label>
-            <label>
-                Responsável - Data Nascimento (opcional):
-                <input type="date" name="responsavelDataNasc">
-            </label>
-            <label>
-                Responsável - Parentesco (opcional):
-                <input type="text" name="responsavelParentesco" placeholder="Ex: Pai, Mãe, etc">
-            </label>
             <button type="submit">Criar Aluno</button>
         </form>
 
-        <!-- Formulário para Atualizar Aluno -->
+        
         <form class="form-grid" data-action="update-aluno">
             <h3>Atualizar Aluno</h3>
             <label>
@@ -132,26 +115,10 @@
                     <option value="pago">Pago</option>
                 </select>
             </label>
-            <label>
-                ID da Turma (opcional):
-                <input type="number" name="idTurma">
-            </label>
-            <label>
-                Responsável - Nome (opcional):
-                <input type="text" name="responsavelNome">
-            </label>
-            <label>
-                Responsável - Data Nascimento (opcional):
-                <input type="date" name="responsavelDataNasc">
-            </label>
-            <label>
-                Responsável - Parentesco (opcional):
-                <input type="text" name="responsavelParentesco" placeholder="Ex: Pai, Mãe, etc">
-            </label>
             <button type="submit">Atualizar Aluno</button>
         </form>
 
-        <!-- Formulário para Deletar Aluno -->
+        
         <form class="form-grid" data-action="delete-aluno">
             <h3>Deletar Aluno</h3>
             <label>
@@ -165,7 +132,7 @@
     <section class="card">
         <h2>Comandos para Professores</h2>
         
-        <!-- Formulário para Criar Professor -->
+        
         <form class="form-grid" data-action="create-professor">
             <h3>Criar Novo Professor</h3>
             <label>
@@ -191,7 +158,7 @@
             <button type="submit">Criar Professor</button>
         </form>
 
-        <!-- Formulário para Atualizar Professor -->
+        
         <form class="form-grid" data-action="update-professor">
             <h3>Atualizar Professor</h3>
             <label>
@@ -221,7 +188,7 @@
             <button type="submit">Atualizar Professor</button>
         </form>
 
-        <!-- Formulário para Deletar Professor -->
+        
         <form class="form-grid" data-action="delete-professor">
             <h3>Deletar Professor</h3>
             <label>
@@ -235,7 +202,7 @@
     <section class="card">
         <h2>Comandos para Disciplinas</h2>
         
-        <!-- Formulário para Criar Disciplina -->
+        
         <form class="form-grid" data-action="create-disciplina">
             <h3>Criar Nova Disciplina</h3>
             <label>
@@ -249,7 +216,7 @@
             <button type="submit">Criar Disciplina</button>
         </form>
 
-        <!-- Formulário para Atualizar Disciplina -->
+        
         <form class="form-grid" data-action="update-disciplina">
             <h3>Atualizar Disciplina</h3>
             <label>
@@ -267,7 +234,7 @@
             <button type="submit">Atualizar Disciplina</button>
         </form>
 
-        <!-- Formulário para Deletar Disciplina -->
+        
         <form class="form-grid" data-action="delete-disciplina">
             <h3>Deletar Disciplina</h3>
             <label>
@@ -281,7 +248,7 @@
     <section class="card">
         <h2>Comandos para Avaliações</h2>
         
-        <!-- Formulário para Criar Avaliação -->
+        
         <form class="form-grid" data-action="create-avaliacao">
             <h3>Criar Nova Avaliação</h3>
             <label>
@@ -303,7 +270,7 @@
             <button type="submit">Criar Avaliação</button>
         </form>
 
-        <!-- Formulário para Atualizar Avaliação -->
+        
         <form class="form-grid" data-action="update-avaliacao">
             <h3>Atualizar Avaliação</h3>
             <label>
@@ -518,9 +485,6 @@
                 <div class="chart-container"><h4>Suporte Prof. vs. Projetos</h4><canvas id="suporteProfVsProjetosChart" width="400" height="200"></canvas></div>
                 <div class="chart-container"><h4>Frequência vs. Disciplinas</h4><canvas id="frequenciaVsDisciplinasChart" width="400" height="200"></canvas></div>
                 <div class="chart-container"><h4>Valor vs. Média Geral</h4><canvas id="valorVsMediaChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Distribuição de Idade</h4><canvas id="idadeEspecíficaChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Uso de Recursos</h4><canvas id="recursosChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Situação de Monitoria</h4><canvas id="monitoriaChart" width="400" height="200"></canvas></div>
                 <div class="chart-container"><h4>Recursos vs. Estudo</h4><canvas id="freqRecursosVsEstudoChart" width="400" height="200"></canvas></div>
                 <div class="chart-container"><h4>Distribuição por Gênero</h4><canvas id="generoChart" width="400" height="200"></canvas></div>
                 

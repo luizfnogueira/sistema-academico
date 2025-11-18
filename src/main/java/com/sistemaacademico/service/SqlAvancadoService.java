@@ -14,13 +14,13 @@ public class SqlAvancadoService {
     @Autowired
     private SqlAvancadoRepository sqlAvancadoRepository;
 
-    // ========== SERVIÇOS DE INICIALIZAÇÃO ==========
+    
     
     public void inicializarEstruturasAvancadas() {
         sqlAvancadoRepository.inicializarEstruturasAvancadas();
     }
 
-    // ========== SERVIÇOS DE CONSULTAS ==========
+    
     
     public List<Map<String, Object>> buscarProfessoresSemOfertas() {
         return sqlAvancadoRepository.buscarProfessoresSemOfertas();
@@ -38,7 +38,7 @@ public class SqlAvancadoService {
         return sqlAvancadoRepository.buscarAlunosTurmas2023();
     }
 
-    // ========== SERVIÇOS DE VIEWS ==========
+    
     
     public List<Map<String, Object>> consultarDetalhesAcademicosAluno() {
         return sqlAvancadoRepository.consultarViewDetalhesAcademicosAluno();
@@ -56,15 +56,15 @@ public class SqlAvancadoService {
         return sqlAvancadoRepository.consultarViewPerfilCompletoProfessorPorId(idProf);
     }
 
-    // ========== SERVIÇOS DE FUNÇÕES ==========
+    
     
     public String obterSituacaoAluno(int idAluno) {
         return sqlAvancadoRepository.chamarFuncaoSituacaoAluno(idAluno);
     }
 
-    // Função calcularMediaDisciplina removida
+    
 
-    // ========== SERVIÇOS DE PROCEDIMENTOS ==========
+    
     
     public void atualizarFrequenciaAluno(int idAluno, double frequenciaNova) {
         sqlAvancadoRepository.chamarProcedimentoUpdateFrequenciaAluno(idAluno, frequenciaNova);
@@ -78,13 +78,13 @@ public class SqlAvancadoService {
         return sqlAvancadoRepository.consultarResumoConselhos();
     }
 
-    // ========== SERVIÇOS DE LOGS ==========
+    
     
     public List<Map<String, Object>> consultarLogPagamento() {
         return sqlAvancadoRepository.consultarLogPagamento();
     }
     
-    // ========== SERVIÇOS DE CONSELHOS ==========
+    
     
     public List<Map<String, Object>> consultarConselhosPorProfessor(int idProf) {
         return sqlAvancadoRepository.consultarConselhosPorProfessor(idProf);
@@ -94,13 +94,13 @@ public class SqlAvancadoService {
         return sqlAvancadoRepository.criarConselhoEAtribuir(idProf, descricao, data);
     }
     
-    // ========== SERVIÇOS DE FUNÇÕES ==========
+    
     
     public Double calcularMediaTurma(int idTurma) {
         return sqlAvancadoRepository.chamarFuncaoCalcularMediaTurma(idTurma);
     }
     
-    // ========== SERVIÇOS DE NAVEGAÇÃO DE CONSELHOS (CURSOR SIMULADO) ==========
+    
     
     private static final java.util.Map<String, java.util.List<Map<String, Object>>> cursorsConselhos = new java.util.concurrent.ConcurrentHashMap<>();
     private static final java.util.Map<String, Integer> indicesConselhos = new java.util.concurrent.ConcurrentHashMap<>();
@@ -122,7 +122,7 @@ public class SqlAvancadoService {
         }
         
         if (indice >= conselhos.size()) {
-            // Limpar cursor
+            
             cursorsConselhos.remove(cursorId);
             indicesConselhos.remove(cursorId);
             Map<String, Object> resultado = new HashMap<>();

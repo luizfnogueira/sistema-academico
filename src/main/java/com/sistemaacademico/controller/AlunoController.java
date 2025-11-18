@@ -24,38 +24,28 @@ public class AlunoController {
     @Autowired
     private ConsultaRepository consultaRepository;
 
-    // ========== ENDPOINTS PARA CRIAÇÃO DE TABELAS (ORDEM CORRIGIDA) ==========
-
     @GetMapping("/criar-tabelas")
     public ResponseEntity<String> criarTabelas() {
         try {
-            // Ordem de criação corrigida para evitar erros de Foreign Key
-            
-            // Grupo 1: Sem dependências
             consultaRepository.criarTabelaAluno();
             consultaRepository.criarTabelaProfessor();
             consultaRepository.criarTabelaTurma();
             consultaRepository.criarTabelaRecurso();
             consultaRepository.criarTabelaDisciplina();
-
-            // Grupo 2: Dependem do Grupo 1
-            consultaRepository.criarTabelaConselho(); // Depende de Professor
-            consultaRepository.criarTabelaEfetivado(); // Depende de Professor
-            consultaRepository.criarTabelaTemporario(); // Depende de Professor
-            consultaRepository.criarTabelaProjExtensao(); // Depende de Professor (Opção 2)
-            consultaRepository.criarTabelaPesquisa(); // Depende de Aluno
-            consultaRepository.criarTabelaPagamento(); // Depende de Aluno
-            consultaRepository.criarTabelaTelefone(); // Depende de Aluno, Professor
-            consultaRepository.criarTabelaEmail(); // Depende de Aluno, Professor
-            consultaRepository.criarTabelaMatricula(); // Depende de Aluno, Turma
-            consultaRepository.criarTabelaAvaliacao(); // Depende de Aluno, Disciplina
-
-            // Grupo 3: Dependem do Grupo 1 e 2 (Tabelas de Ligação)
-            consultaRepository.criarTabelaMonitora(); // Depende de Aluno
-            consultaRepository.criarTabelaOferta(); // Depende de Professor, Turma, Disciplina
-            consultaRepository.criarTabelaUtiliza(); // Depende de Turma, Recurso
-            consultaRepository.criarTabelaParticipa(); // Depende de Professor, Conselho
-            
+            consultaRepository.criarTabelaConselho(); 
+            consultaRepository.criarTabelaEfetivado();
+            consultaRepository.criarTabelaTemporario(); 
+            consultaRepository.criarTabelaProjExtensao(); 
+            consultaRepository.criarTabelaPesquisa(); 
+            consultaRepository.criarTabelaPagamento(); 
+            consultaRepository.criarTabelaTelefone(); 
+            consultaRepository.criarTabelaEmail(); 
+            consultaRepository.criarTabelaMatricula();
+            consultaRepository.criarTabelaAvaliacao();
+            consultaRepository.criarTabelaMonitora(); 
+            consultaRepository.criarTabelaOferta(); 
+            consultaRepository.criarTabelaUtiliza();
+            consultaRepository.criarTabelaParticipa();
             return ResponseEntity.ok("Todas as 19 tabelas foram criadas ou verificadas com sucesso!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -63,12 +53,9 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS CRUD PARA ALUNOS (Corrigidos) ==========
-    
     @PostMapping("/alunos")
     public ResponseEntity<?> criarAluno(@RequestBody Aluno aluno) {
         try {
-            // Validações detalhadas
             if (aluno.getNome() == null || aluno.getNome().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Erro: Nome do aluno é obrigatório");
             }
@@ -81,7 +68,6 @@ public class AlunoController {
             if (aluno.getSexo() == null || (!aluno.getSexo().equals("M") && !aluno.getSexo().equals("F"))) {
                 return ResponseEntity.badRequest().body("Erro: Sexo deve ser 'M' ou 'F'");
             }
-            
             Aluno alunoCriado = consultaService.criarAluno(aluno);
             return ResponseEntity.status(HttpStatus.CREATED).body(alunoCriado);
         } catch (Exception e) {
@@ -117,10 +103,7 @@ public class AlunoController {
     @PutMapping("/alunos/{id}")
     public ResponseEntity<?> atualizarAluno(@PathVariable int id, @RequestBody Aluno aluno) {
         try {
-            // if (!consultaService.validarAluno(aluno)) {
-            //     return ResponseEntity.badRequest().body("Dados do aluno inválidos");
-            // }
-            aluno.setIdAluno(id); // Usa o setIdAluno
+            aluno.setIdAluno(id);
             Aluno alunoAtualizado = consultaService.atualizarAluno(aluno);
             return ResponseEntity.ok(alunoAtualizado);
         } catch (Exception e) {
@@ -144,19 +127,15 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS CRUD PARA DISCIPLINAS (Corrigidos) ==========
-    
     @PostMapping("/disciplinas")
     public ResponseEntity<?> criarDisciplina(@RequestBody Disciplina disciplina) {
         try {
-            // Validações detalhadas
             if (disciplina.getNome() == null || disciplina.getNome().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Erro: Nome da disciplina é obrigatório");
             }
             if (disciplina.getCargaHoraria() < 20 || disciplina.getCargaHoraria() > 120) {
                 return ResponseEntity.badRequest().body("Erro: Carga horária deve estar entre 20 e 120 horas");
             }
-            
             Disciplina disciplinaCriada = consultaService.criarDisciplina(disciplina);
             return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaCriada);
         } catch (Exception e) {
@@ -195,7 +174,7 @@ public class AlunoController {
             if (!consultaService.validarDisciplina(disciplina)) {
                 return ResponseEntity.badRequest().body("Dados da disciplina inválidos");
             }
-            disciplina.setIdDisc(id); // Usa o setIdDisc
+            disciplina.setIdDisc(id);
             Disciplina disciplinaAtualizada = consultaService.atualizarDisciplina(disciplina);
             return ResponseEntity.ok(disciplinaAtualizada);
         } catch (Exception e) {
@@ -219,12 +198,9 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS CRUD PARA AVALIAÇÕES ==========
-    
     @PostMapping("/avaliacoes")
     public ResponseEntity<?> criarAvaliacao(@RequestBody com.sistemaacademico.model.Avaliacao avaliacao) {
         try {
-            // Validações
             if (avaliacao.getValor() < 0 || avaliacao.getValor() > 10) {
                 return ResponseEntity.badRequest().body("Erro: Valor da avaliação deve estar entre 0 e 10");
             }
@@ -237,7 +213,6 @@ public class AlunoController {
             if (avaliacao.getData() == null) {
                 return ResponseEntity.badRequest().body("Erro: Data da avaliação é obrigatória");
             }
-            
             com.sistemaacademico.model.Avaliacao avaliacaoCriada = consultaService.criarAvaliacao(avaliacao);
             return ResponseEntity.status(HttpStatus.CREATED).body(avaliacaoCriada);
         } catch (Exception e) {
@@ -273,11 +248,9 @@ public class AlunoController {
     @PutMapping("/avaliacoes/{id}")
     public ResponseEntity<?> atualizarAvaliacao(@PathVariable int id, @RequestBody com.sistemaacademico.model.Avaliacao avaliacao) {
         try {
-            // Validações
             if (avaliacao.getValor() != 0.0 && (avaliacao.getValor() < 0 || avaliacao.getValor() > 10)) {
                 return ResponseEntity.badRequest().body("Erro: Valor da avaliação deve estar entre 0 e 10");
             }
-            
             avaliacao.setIdAvalia(id);
             com.sistemaacademico.model.Avaliacao avaliacaoAtualizada = consultaService.atualizarAvaliacao(avaliacao);
             return ResponseEntity.ok(avaliacaoAtualizada);
@@ -302,17 +275,13 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS PARA MATRÍCULAS ==========
-    
     @PostMapping("/matriculas")
     public ResponseEntity<?> criarMatricula(@RequestBody Map<String, Object> matricula) {
         try {
             int idAluno = Integer.parseInt(matricula.get("idAluno").toString());
             int idTurma = Integer.parseInt(matricula.get("idTurma").toString());
             String dataStr = matricula.get("data") != null ? matricula.get("data").toString() : null;
-            
             java.sql.Date data = dataStr != null ? java.sql.Date.valueOf(dataStr) : new java.sql.Date(System.currentTimeMillis());
-            
             consultaRepository.criarMatricula(idAluno, idTurma, data);
             return ResponseEntity.status(HttpStatus.CREATED).body("Matrícula criada com sucesso");
         } catch (Exception e) {
@@ -321,8 +290,6 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS PARA DEPENDENTES ==========
-    
     @PostMapping("/dependentes")
     public ResponseEntity<?> criarDependente(@RequestBody Map<String, Object> dependente) {
         try {
@@ -330,9 +297,7 @@ public class AlunoController {
             String nome = dependente.get("nome").toString();
             String dataNascStr = dependente.get("dataNasc").toString();
             String parentesco = dependente.get("parentesco") != null ? dependente.get("parentesco").toString() : null;
-            
             java.sql.Date dataNasc = java.sql.Date.valueOf(dataNascStr);
-            
             consultaRepository.criarDependente(idAluno, nome, dataNasc, parentesco);
             return ResponseEntity.status(HttpStatus.CREATED).body("Dependente criado com sucesso");
         } catch (Exception e) {
@@ -341,16 +306,12 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS CRUD PARA PROFESSORES ==========
-    
     @PostMapping("/professores")
     public ResponseEntity<?> criarProfessor(@RequestBody Professor professor) {
         try {
-            // Validações detalhadas
             if (professor.getNome() == null || professor.getNome().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Erro: Nome do professor é obrigatório");
             }
-            
             Professor professorCriado = consultaService.criarProfessor(professor);
             return ResponseEntity.status(HttpStatus.CREATED).body(professorCriado);
         } catch (Exception e) {
@@ -388,7 +349,6 @@ public class AlunoController {
         try {
             professor.setIdProf(id);
             Professor professorAtualizado = consultaService.atualizarProfessor(professor);
-            // Validar após mesclar com dados existentes
             if (!consultaService.validarProfessor(professorAtualizado)) {
                 return ResponseEntity.badRequest().body("Dados do professor inválidos");
             }
@@ -414,8 +374,6 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS PARA DASHBOARD (API para o Front-end) ==========
-    
     @GetMapping("/dashboard/estatisticas")
     public ResponseEntity<Map<String, Object>> obterEstatisticasGerais() {
         try {
@@ -426,8 +384,6 @@ public class AlunoController {
         }
     }
 
-    // ========== ENDPOINTS PARA CONSULTAS COMPLEXAS (ETAPA 03) ==========
-    
     @GetMapping("/consultas/{tipoConsulta}")
     public ResponseEntity<List<Map<String, Object>>> obterConsultaComplexa(@PathVariable String tipoConsulta) {
         try {

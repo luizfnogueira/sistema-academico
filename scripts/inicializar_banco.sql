@@ -1,23 +1,7 @@
--- ============================================================================
--- SCRIPT COMPLETO DE INICIALIZAÇÃO DO BANCO DE DADOS
--- Sistema Acadêmico - MySQL
--- ============================================================================
-
--- 1. CRIAR O BANCO DE DADOS (se não existir)
 CREATE DATABASE IF NOT EXISTS sistema_academico;
 USE sistema_academico;
 
--- 2. REMOVER TABELAS EXISTENTES (se necessário - CUIDADO: apaga dados!)
--- Descomente as linhas abaixo apenas se quiser recriar tudo do zero
--- DROP DATABASE IF EXISTS sistema_academico;
--- CREATE DATABASE sistema_academico;
--- USE sistema_academico;
 
--- ============================================================================
--- 3. CRIAR TODAS AS TABELAS (em ordem de dependência)
--- ============================================================================
-
--- Tabela Aluno
 CREATE TABLE IF NOT EXISTS Aluno (
     Id_Aluno INT PRIMARY KEY AUTO_INCREMENT,
     Nome VARCHAR(255) NOT NULL,
@@ -32,7 +16,6 @@ CREATE TABLE IF NOT EXISTS Aluno (
     Status_Pagamento VARCHAR(20) DEFAULT 'pendente' CHECK (Status_Pagamento IN ('pendente','pago'))
 );
 
--- Tabela Dependente
 CREATE TABLE IF NOT EXISTS Dependente (
     Nome VARCHAR(100) NOT NULL,
     Data_Nasc DATE NOT NULL,
@@ -43,7 +26,6 @@ CREATE TABLE IF NOT EXISTS Dependente (
         ON DELETE CASCADE
 );
 
--- Tabela Monitora
 CREATE TABLE IF NOT EXISTS Monitora (
     Id_Monitor INT,
     Id_Monitorado INT,
@@ -54,7 +36,6 @@ CREATE TABLE IF NOT EXISTS Monitora (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Tabela Pesquisa
 CREATE TABLE IF NOT EXISTS Pesquisa (
     Id_Pesquisa INT PRIMARY KEY AUTO_INCREMENT,
     Freq_Recurso INT DEFAULT 0,
@@ -66,7 +47,6 @@ CREATE TABLE IF NOT EXISTS Pesquisa (
         ON DELETE SET NULL
 );
 
--- Tabela Professor
 CREATE TABLE IF NOT EXISTS Professor (
     Id_Prof INT PRIMARY KEY AUTO_INCREMENT,
     CPF VARCHAR(14) UNIQUE,
@@ -76,7 +56,6 @@ CREATE TABLE IF NOT EXISTS Professor (
     CEP VARCHAR(9)
 );
 
--- Tabela Efetivado
 CREATE TABLE IF NOT EXISTS Efetivado (
     Id_Prof INT PRIMARY KEY,
     Salario DECIMAL(10, 2) NOT NULL,
@@ -86,7 +65,6 @@ CREATE TABLE IF NOT EXISTS Efetivado (
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Tabela Temporario
 CREATE TABLE IF NOT EXISTS Temporario (
     Id_Prof INT PRIMARY KEY,
     Remuneracao DECIMAL(10, 2),
@@ -96,28 +74,24 @@ CREATE TABLE IF NOT EXISTS Temporario (
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Tabela Turma
 CREATE TABLE IF NOT EXISTS Turma (
     Id_Turma INT PRIMARY KEY AUTO_INCREMENT,
     Nome VARCHAR(100) NOT NULL,
     Ano INT NOT NULL
 );
 
--- Tabela Recurso
 CREATE TABLE IF NOT EXISTS Recurso (
     Id_Recurso INT PRIMARY KEY AUTO_INCREMENT,
     Tipo VARCHAR(100) DEFAULT 'Geral',
     Localizacao VARCHAR(255)
 );
 
--- Tabela Disciplina
 CREATE TABLE IF NOT EXISTS Disciplina (
     Id_Disc INT PRIMARY KEY AUTO_INCREMENT,
     Nome VARCHAR(255) NOT NULL,
     Carga_Horaria INT DEFAULT 40 CHECK (Carga_Horaria BETWEEN 20 AND 120)
 );
 
--- Tabela Oferta
 CREATE TABLE IF NOT EXISTS Oferta (
     Id_Prof INT,
     Id_Turma INT,
@@ -131,7 +105,6 @@ CREATE TABLE IF NOT EXISTS Oferta (
         ON DELETE CASCADE
 );
 
--- Tabela Matricula
 CREATE TABLE IF NOT EXISTS Matricula (
     Id_Matricula INT PRIMARY KEY AUTO_INCREMENT,
     Data DATE,
@@ -143,7 +116,6 @@ CREATE TABLE IF NOT EXISTS Matricula (
         ON DELETE SET NULL
 );
 
--- Tabela Avaliacao
 CREATE TABLE IF NOT EXISTS Avaliacao (
     Id_Avalia INT PRIMARY KEY AUTO_INCREMENT,
     Valor DECIMAL(4, 2) CHECK (Valor >= 0 AND Valor <= 10),
@@ -156,7 +128,6 @@ CREATE TABLE IF NOT EXISTS Avaliacao (
         ON DELETE SET NULL
 );
 
--- Tabela Utiliza
 CREATE TABLE IF NOT EXISTS Utiliza (
     Id_Turma INT,
     Id_Recurso INT,
@@ -168,7 +139,6 @@ CREATE TABLE IF NOT EXISTS Utiliza (
     FOREIGN KEY (Id_Recurso) REFERENCES Recurso(Id_Recurso)
 );
 
--- Tabela Telefone
 CREATE TABLE IF NOT EXISTS Telefone (
     Numero VARCHAR(20),
     Id_Aluno INT,
@@ -180,7 +150,6 @@ CREATE TABLE IF NOT EXISTS Telefone (
         ON DELETE CASCADE
 );
 
--- Tabela Email
 CREATE TABLE IF NOT EXISTS Email (
     Email VARCHAR(255) PRIMARY KEY,
     Id_Aluno INT,
@@ -191,7 +160,6 @@ CREATE TABLE IF NOT EXISTS Email (
         ON DELETE CASCADE
 );
 
--- Tabela Pagamento
 CREATE TABLE IF NOT EXISTS Pagamento (
     Id_Pagamento INT PRIMARY KEY AUTO_INCREMENT,
     Status VARCHAR(50) DEFAULT 'Pendente' CHECK (Status IN ('Pendente','Pago','Atrasado')),
@@ -202,7 +170,6 @@ CREATE TABLE IF NOT EXISTS Pagamento (
         ON DELETE SET NULL
 );
 
--- Tabela Proj_Extensao
 CREATE TABLE IF NOT EXISTS Proj_Extensao (
     Id_Proj INT PRIMARY KEY AUTO_INCREMENT,
     Nome VARCHAR(255),
@@ -213,7 +180,6 @@ CREATE TABLE IF NOT EXISTS Proj_Extensao (
         ON DELETE SET NULL
 );
 
--- Tabela Conselho
 CREATE TABLE IF NOT EXISTS Conselho (
     Id_Conselho INT PRIMARY KEY AUTO_INCREMENT,
     Descricao VARCHAR(255),
@@ -223,7 +189,6 @@ CREATE TABLE IF NOT EXISTS Conselho (
         ON DELETE SET NULL
 );
 
--- Tabela Participa
 CREATE TABLE IF NOT EXISTS Participa (
     Id_Prof INT,
     Id_Conselho INT,
@@ -234,24 +199,16 @@ CREATE TABLE IF NOT EXISTS Participa (
         ON DELETE CASCADE
 );
 
--- ============================================================================
--- 4. CRIAR ÍNDICES
--- ============================================================================
 
 CREATE INDEX EXISTS idx_aluno_nome ON Aluno (Nome);
 CREATE INDEX EXISTS idx_aluno_media ON Aluno (Media);
 
--- ============================================================================
--- 5. CRIAR TABELAS AUXILIARES (para triggers e procedimentos)
--- ============================================================================
 
--- Tabela Resumo_Conselhos
 CREATE TABLE IF NOT EXISTS Resumo_Conselhos (
     Id_Prof INT PRIMARY KEY,
     Total_Conselhos INT
 );
 
--- Tabela Log_Pagamento
 CREATE TABLE IF NOT EXISTS Log_Pagamento (
     Id_Log INT AUTO_INCREMENT PRIMARY KEY,
     Id_Pagamento INT,
@@ -259,11 +216,7 @@ CREATE TABLE IF NOT EXISTS Log_Pagamento (
     Data_Registro DATETIME
 );
 
--- ============================================================================
--- 6. CRIAR VIEWS
--- ============================================================================
 
--- View: Detalhes Acadêmicos do Aluno (MODIFICADA: removido nome_disciplina, Nota_específica, nome_professor; adicionado telefone e sexo)
 CREATE OR REPLACE VIEW vw_DetalhesAcademicosAluno AS
 SELECT 
     a.Nome AS Nome_Aluno,
@@ -278,7 +231,6 @@ JOIN Turma t ON m.Id_Turma = t.Id_Turma
 LEFT JOIN Telefone tel ON a.Id_Aluno = tel.Id_Aluno
 GROUP BY a.Id_Aluno, a.Nome, a.Media, a.Sexo, t.Nome, t.Ano;
 
--- View: Perfil Completo do Professor
 CREATE OR REPLACE VIEW vw_PerfilCompletoProfessor AS
 SELECT 
     p.Id_Prof,
@@ -295,9 +247,7 @@ LEFT JOIN Participa pa ON p.Id_Prof = pa.Id_Prof
 LEFT JOIN Conselho c ON pa.Id_Conselho = c.Id_Conselho
 LEFT JOIN Proj_Extensao pe ON p.Id_Prof = pe.Id_Prof;
 
--- ============================================================================
--- 7. CRIAR FUNÇÕES
--- ============================================================================
+
 
 DROP FUNCTION IF EXISTS situacaoAluno;
 
@@ -328,11 +278,24 @@ END$$
 
 DELIMITER ;
 
--- Função calcularMediaDisciplina REMOVIDA conforme solicitado
+DROP FUNCTION IF EXISTS calcularMediaTurma;
+DELIMITER $$
+CREATE FUNCTION calcularMediaTurma(idTurma INT)
+RETURNS DECIMAL(4,2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE mediaTurma DECIMAL(4,2);
+    SELECT COALESCE(AVG(a.Media), 0) INTO mediaTurma
+    FROM Aluno a
+    JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
+    WHERE m.Id_Turma = idTurma
+    AND a.Media IS NOT NULL
+    AND a.Media > 0;
+    RETURN mediaTurma;
+END$$
+DELIMITER ;
 
--- ============================================================================
--- 8. CRIAR PROCEDIMENTOS
--- ============================================================================
 
 DROP PROCEDURE IF EXISTS updateFrequenciaAluno;
 
@@ -379,32 +342,6 @@ END$$
 
 DELIMITER ;
 
-DROP FUNCTION IF EXISTS calcularMediaTurma;
-
-DELIMITER $$
-
-CREATE FUNCTION calcularMediaTurma(idTurma INT)
-RETURNS DECIMAL(4,2)
-DETERMINISTIC
-READS SQL DATA
-BEGIN
-    DECLARE mediaTurma DECIMAL(4,2);
-    
-    SELECT COALESCE(AVG(a.Media), 0) INTO mediaTurma
-    FROM Aluno a
-    JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
-    WHERE m.Id_Turma = idTurma
-    AND a.Media IS NOT NULL
-    AND a.Media > 0;
-    
-    RETURN mediaTurma;
-END$$
-
-DELIMITER ;
-
--- ============================================================================
--- 9. CRIAR TRIGGERS
--- ============================================================================
 
 DROP TRIGGER IF EXISTS logPagamento;
 
@@ -441,9 +378,6 @@ END$$
 
 DELIMITER ;
 
--- ============================================================================
--- FIM DO SCRIPT
--- ============================================================================
 
 SELECT 'Banco de dados inicializado com sucesso!' AS Status;
 

@@ -17,9 +17,6 @@ public class ConsultaRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // ========== CRIAÇÃO DE TABELAS (EM ORDEM DE DEPENDÊNCIA) ==========
-
-    // Grupo 1: Tabelas sem dependências externas (exceto si mesmas)
     public void criarTabelaAluno() {
         String sql = "CREATE TABLE IF NOT EXISTS Aluno (" +
                 "Id_Aluno INT PRIMARY KEY AUTO_INCREMENT," +
@@ -72,7 +69,6 @@ public class ConsultaRepository {
                 "Id_Disc INT PRIMARY KEY AUTO_INCREMENT," +
                 "Nome VARCHAR(255) NOT NULL," +
                 "Carga_Horaria INT DEFAULT 40 CHECK (Carga_Horaria BETWEEN 20 AND 120)" +
-                // Colunas Id_Aluno e Id_Turma removidas
                 ")";
         jdbcTemplate.execute(sql);
     }
@@ -88,7 +84,6 @@ public class ConsultaRepository {
         jdbcTemplate.execute(sql);
     }
 
-    // Grupo 2: Tabelas que dependem do Grupo 1
 
     public void criarTabelaEfetivado() {
         String sql = "CREATE TABLE IF NOT EXISTS Efetivado (" +
@@ -118,7 +113,6 @@ public class ConsultaRepository {
                 "Nome VARCHAR(255)," +
                 "Descricao VARCHAR(255)," +
                 "Id_Prof INT," +
-                // Corrigido para "Opção 2": referencia Professor, não Efetivado
                 "FOREIGN KEY (Id_Prof) REFERENCES Professor(Id_Prof) ON DELETE SET NULL" +
                 ")";
         jdbcTemplate.execute(sql);
@@ -177,9 +171,9 @@ public class ConsultaRepository {
                 "Id_Matricula INT PRIMARY KEY AUTO_INCREMENT," +
                 "Data DATE," +
                 "Id_Aluno INT," +
-                "Id_Turma INT," + // Adicionado
+                "Id_Turma INT," + 
                 "FOREIGN KEY (Id_Aluno) REFERENCES Aluno(Id_Aluno) ON DELETE SET NULL," +
-                "FOREIGN KEY (Id_Turma) REFERENCES Turma(Id_Turma) ON DELETE SET NULL" + // Adicionado
+                "FOREIGN KEY (Id_Turma) REFERENCES Turma(Id_Turma) ON DELETE SET NULL" +
                 ")";
         jdbcTemplate.execute(sql);
     }
@@ -197,7 +191,6 @@ public class ConsultaRepository {
         jdbcTemplate.execute(sql);
     }
 
-    // Grupo 3: Tabelas de Ligação (dependem do Grupo 1 e 2)
     
     public void criarTabelaMonitora() {
         String sql = "CREATE TABLE IF NOT EXISTS Monitora (" +
@@ -248,9 +241,7 @@ public class ConsultaRepository {
         jdbcTemplate.execute(sql);
     }
 
-    // ========== OPERAÇÕES CRUD PARA ALUNOS (Corrigido) ==========
-    
-    // Inserir novo aluno
+
     public int inserirAluno(Aluno aluno) {
         String sql = "INSERT INTO Aluno (Nome, Sexo, Data_Nasc, Idade, Num, CEP, Rua, Media, Frequencia, Status_Pagamento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String statusPagamento = aluno.getStatusPagamento() != null ? aluno.getStatusPagamento() : "pendente";
@@ -276,16 +267,14 @@ public class ConsultaRepository {
             aluno.setIdAluno(key.intValue());
         }
         
-        return 1; // Sucesso
+        return 1;
     }
 
-    // Buscar todos os alunos
     public List<Aluno> listarTodosAlunos() {
         String sql = "SELECT * FROM Aluno ORDER BY Nome";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Aluno.class));
     }
 
-    // Buscar aluno por ID
     public Aluno buscarAlunoPorId(int id) {
         String sql = "SELECT * FROM Aluno WHERE Id_Aluno = ?";
         try {
@@ -295,7 +284,6 @@ public class ConsultaRepository {
         }
     }
 
-    // Atualizar aluno
     public int atualizarAluno(Aluno aluno) {
         String sql = "UPDATE Aluno SET Nome = ?, Sexo = ?, Data_Nasc = ?, Idade = ?, Num = ?, CEP = ?, Rua = ?, Media = ?, Frequencia = ?, Status_Pagamento = ? WHERE Id_Aluno = ?";
         return jdbcTemplate.update(sql, 
@@ -313,31 +301,24 @@ public class ConsultaRepository {
         );
     }
 
-    // Deletar aluno por ID
     public int deletarAluno(int id) {
         String sql = "DELETE FROM Aluno WHERE Id_Aluno = ?";
         return jdbcTemplate.update(sql, id);
     }
 
-    // ========== OPERAÇÕES CRUD PARA DISCIPLINAS (Corrigido) ==========
-    
-    // Inserir nova disciplina
     public int inserirDisciplina(Disciplina disciplina) {
         String sql = "INSERT INTO Disciplina (Nome, Carga_Horaria) VALUES (?, ?)";
         return jdbcTemplate.update(sql, 
             disciplina.getNome(), 
             disciplina.getCargaHoraria()
-            // idAluno e idTurma removidos
         );
     }
 
-    // Buscar todas as disciplinas
     public List<Disciplina> listarTodasDisciplinas() {
         String sql = "SELECT * FROM Disciplina ORDER BY Nome";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Disciplina.class));
     }
 
-    // Buscar disciplina por ID
     public Disciplina buscarDisciplinaPorId(int id) {
         String sql = "SELECT * FROM Disciplina WHERE Id_Disc = ?";
         try {
@@ -347,26 +328,20 @@ public class ConsultaRepository {
         }
     }
 
-    // Atualizar disciplina
     public int atualizarDisciplina(Disciplina disciplina) {
         String sql = "UPDATE Disciplina SET Nome = ?, Carga_Horaria = ? WHERE Id_Disc = ?";
         return jdbcTemplate.update(sql, 
             disciplina.getNome(), 
             disciplina.getCargaHoraria(),
             disciplina.getIdDisc()
-            // idAluno e idTurma removidos
         );
     }
 
-    // Deletar disciplina por ID
     public int deletarDisciplina(int id) {
         String sql = "DELETE FROM Disciplina WHERE Id_Disc = ?";
         return jdbcTemplate.update(sql, id);
     }
 
-    // ========== OPERAÇÕES CRUD PARA AVALIAÇÕES ==========
-    
-    // Inserir nova avaliação
     public int inserirAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
         String sql = "INSERT INTO Avaliacao (Valor, Data, Id_Aluno, Id_Disc) VALUES (?, ?, ?, ?)";
         return jdbcTemplate.update(sql, 
@@ -377,13 +352,11 @@ public class ConsultaRepository {
         );
     }
 
-    // Buscar todas as avaliações
     public List<com.sistemaacademico.model.Avaliacao> listarTodasAvaliacoes() {
         String sql = "SELECT * FROM Avaliacao ORDER BY Data DESC";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(com.sistemaacademico.model.Avaliacao.class));
     }
 
-    // Buscar avaliação por ID
     public com.sistemaacademico.model.Avaliacao buscarAvaliacaoPorId(int id) {
         String sql = "SELECT * FROM Avaliacao WHERE Id_Avalia = ?";
         try {
@@ -393,7 +366,6 @@ public class ConsultaRepository {
         }
     }
 
-    // Atualizar avaliação
     public int atualizarAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
         String sql = "UPDATE Avaliacao SET Valor = ?, Data = ?, Id_Aluno = ?, Id_Disc = ? WHERE Id_Avalia = ?";
         return jdbcTemplate.update(sql, 
@@ -405,14 +377,11 @@ public class ConsultaRepository {
         );
     }
 
-    // Deletar avaliação por ID
     public int deletarAvaliacao(int id) {
         String sql = "DELETE FROM Avaliacao WHERE Id_Avalia = ?";
         return jdbcTemplate.update(sql, id);
     }
 
-    // ========== OPERAÇÕES PARA MATRÍCULAS E DEPENDENTES ==========
-    
     public int criarMatricula(int idAluno, int idTurma, java.sql.Date data) {
         String sql = "INSERT INTO Matricula (Id_Aluno, Id_Turma, Data) VALUES (?, ?, ?)";
         return jdbcTemplate.update(sql, idAluno, idTurma, data);
@@ -423,9 +392,6 @@ public class ConsultaRepository {
         return jdbcTemplate.update(sql, idAluno, nome, dataNasc, parentesco);
     }
 
-    // ========== OPERAÇÕES CRUD PARA PROFESSORES ==========
-    
-    // Inserir novo professor
     public int inserirProfessor(Professor professor) {
         String sql = "INSERT INTO Professor (Nome, CPF, Rua, Num, CEP) VALUES (?, ?, ?, ?, ?)";
         return jdbcTemplate.update(sql, 
@@ -437,13 +403,11 @@ public class ConsultaRepository {
         );
     }
 
-    // Buscar todos os professores
     public List<Professor> listarTodosProfessores() {
         String sql = "SELECT * FROM Professor ORDER BY Nome";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Professor.class));
     }
 
-    // Buscar professor por ID
     public Professor buscarProfessorPorId(int id) {
         String sql = "SELECT * FROM Professor WHERE Id_Prof = ?";
         try {
@@ -453,7 +417,6 @@ public class ConsultaRepository {
         }
     }
 
-    // Atualizar professor
     public int atualizarProfessor(Professor professor) {
         String sql = "UPDATE Professor SET Nome = ?, CPF = ?, Rua = ?, Num = ?, CEP = ? WHERE Id_Prof = ?";
         return jdbcTemplate.update(sql, 
@@ -466,39 +429,31 @@ public class ConsultaRepository {
         );
     }
 
-    // Deletar professor por ID
     public int deletarProfessor(int id) {
         String sql = "DELETE FROM Professor WHERE Id_Prof = ?";
         return jdbcTemplate.update(sql, id);
     }
 
-    // ========== CONSULTAS ESTATÍSTICAS (Sem alterações) ==========
-    
-    // Total de alunos cadastrados
     public int contarTotalAlunos() {
         String sql = "SELECT COUNT(*) FROM Aluno";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
-    // Total de disciplinas cadastradas
     public int contarTotalDisciplinas() {
         String sql = "SELECT COUNT(*) FROM Disciplina";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
-    // Média geral de notas dos alunos
     public Double calcularMediaGeralNotas() {
         String sql = "SELECT AVG(Media) FROM Aluno WHERE Media > 0";
         return jdbcTemplate.queryForObject(sql, Double.class);
     }
 
-    // Alunos com frequência abaixo de 75%
     public int contarAlunosComFrequenciaBaixa() {
         String sql = "SELECT COUNT(*) FROM Aluno WHERE Frequencia < 75";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
-    
-    // Taxa de aprovação (alunos com média >= 7)
+
     public Double calcularTaxaAprovacao() {
         String sql = """
             SELECT 
@@ -509,31 +464,19 @@ public class ConsultaRepository {
         return jdbcTemplate.queryForObject(sql, Double.class);
     }
 
-    // ... (Restante dos métodos de consulta estatística, que parecem corretos e 
-    // devem funcionar se as tabelas referenciadas (Aluno, Disciplina, Avaliacao, Pagamento, Pesquisa) 
-    // estiverem populadas com dados) ...
-    
-    // (Cole o restante dos seus métodos de consulta aqui... 
-    // obterDistribuicaoPorSexo, obterTopDisciplinasCargaHoraria, etc.)
-    
-    // ========== COLE O RESTANTE DOS SEUS MÉTODOS DE CONSULTA AQUI ==========
-    // (Os métodos de consulta complexos e de gráficos que você já tinha)
-    
-     // Distribuição por sexo
+
     public List<ConsultaResultadoDTO> obterDistribuicaoPorSexo() {
         String sql = "SELECT Sexo as descricao, COUNT(*) as valor FROM Aluno GROUP BY Sexo";
         return jdbcTemplate.query(sql, (rs, rowNum) -> 
             new ConsultaResultadoDTO(rs.getString("descricao"), rs.getInt("valor")));
     }
 
-    // Top 5 disciplinas com maior carga horária
     public List<ConsultaResultadoDTO> obterTopDisciplinasCargaHoraria() {
         String sql = "SELECT Nome as descricao, Carga_Horaria as valor FROM Disciplina ORDER BY Carga_Horaria DESC LIMIT 5";
         return jdbcTemplate.query(sql, (rs, rowNum) -> 
             new ConsultaResultadoDTO(rs.getString("descricao"), rs.getInt("valor")));
     }
 
-    // Alunos por faixa etária
     public List<ConsultaResultadoDTO> obterDistribuicaoPorIdade() {
         String sql = """
             SELECT 
@@ -558,15 +501,11 @@ public class ConsultaRepository {
             new ConsultaResultadoDTO(rs.getString("descricao"), rs.getInt("valor")));
     }
 
-    // Alunos com melhor desempenho (top 10)
     public List<Aluno> obterTopAlunos() {
         String sql = "SELECT * FROM Aluno WHERE Media > 0 ORDER BY Media DESC LIMIT 10";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Aluno.class));
     }
 
-    // ========== CONSULTAS COMPLEXAS PARA ETAPA 03 ==========
-    
-    // CONSULTA 1: Alunos e suas Disciplinas com Médias (COM JOIN)
     public List<Map<String, Object>> obterAlunosComDisciplinas() {
         String sql = """
             SELECT 
@@ -588,7 +527,6 @@ public class ConsultaRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // CONSULTA 2: Distribuição por Faixa Etária e Sexo (ESTATÍSTICA)
     public List<Map<String, Object>> obterDistribuicaoPorIdadeESexo() {
         String sql = """
             SELECT 
@@ -617,7 +555,6 @@ public class ConsultaRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // CONSULTA 3: Análise de Desempenho por Disciplina (COMPLEXA COM JOIN)
     public List<Map<String, Object>> obterAnaliseDesempenhoDisciplinas() {
         String sql = """
             SELECT 
@@ -641,7 +578,6 @@ public class ConsultaRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // CONSULTA 4: Situação Acadêmica Completa (COMPLEXA COM JOIN)
     public List<Map<String, Object>> obterSituacaoAcademicaCompleta() {
         String sql = """
             SELECT 
@@ -673,7 +609,6 @@ public class ConsultaRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // CONSULTA 5: Ranking de Professores (BÔNUS - COMPLEXA COM JOIN)
     public List<Map<String, Object>> obterRankingProfessores() {
         String sql = """
             SELECT 
@@ -701,7 +636,6 @@ public class ConsultaRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // ========== MÉTODOS FALTANTES PARA GRÁFICOS ==========
     
     public List<Map<String, Object>> obterMediaPorFrequenciaEstudo() {
         String sql = """

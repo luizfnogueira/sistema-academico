@@ -19,13 +19,11 @@ public class ConsultaService {
     @Autowired
     private ConsultaRepository consultaRepository;
 
-    // ========== SERVIÇOS PARA ALUNOS (Corrigido) ==========
+    
     
     public Aluno criarAluno(Aluno aluno) {
         int linhasAfetadas = consultaRepository.inserirAluno(aluno);
         if (linhasAfetadas > 0) {
-            // Nota: O ID auto-incrementado não é retornado aqui facilmente sem JDBC avançado.
-            // Retornar o objeto de entrada é suficiente para o CRUD básico.
             return aluno;
         }
         throw new RuntimeException("Erro ao criar aluno");
@@ -40,13 +38,13 @@ public class ConsultaService {
     }
 
     public Aluno atualizarAluno(Aluno aluno) {
-        // Buscar aluno existente para preencher campos não fornecidos
+        
         Aluno alunoExistente = consultaRepository.buscarAlunoPorId(aluno.getIdAluno());
         if (alunoExistente == null) {
             throw new RuntimeException("Aluno não encontrado");
         }
         
-        // Mesclar dados: usar valores fornecidos ou manter os existentes
+        
         if (aluno.getNome() == null || aluno.getNome().trim().isEmpty()) {
             aluno.setNome(alunoExistente.getNome());
         }
@@ -87,7 +85,7 @@ public class ConsultaService {
         return linhasAfetadas > 0;
     }
 
-    // ========== SERVIÇOS PARA DISCIPLINAS (Corrigido) ==========
+    
     
     public Disciplina criarDisciplina(Disciplina disciplina) {
         int linhasAfetadas = consultaRepository.inserirDisciplina(disciplina);
@@ -118,7 +116,7 @@ public class ConsultaService {
         return linhasAfetadas > 0;
     }
 
-    // ========== SERVIÇOS PARA AVALIAÇÕES ==========
+    
     
     public com.sistemaacademico.model.Avaliacao criarAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
         int linhasAfetadas = consultaRepository.inserirAvaliacao(avaliacao);
@@ -137,13 +135,13 @@ public class ConsultaService {
     }
 
     public com.sistemaacademico.model.Avaliacao atualizarAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
-        // Buscar avaliação existente para preencher campos não fornecidos
+        
         com.sistemaacademico.model.Avaliacao avaliacaoExistente = consultaRepository.buscarAvaliacaoPorId(avaliacao.getIdAvalia());
         if (avaliacaoExistente == null) {
             throw new RuntimeException("Avaliação não encontrada");
         }
         
-        // Mesclar dados: usar valores fornecidos ou manter os existentes
+        
         if (avaliacao.getValor() == 0.0) {
             avaliacao.setValor(avaliacaoExistente.getValor());
         }
@@ -169,7 +167,7 @@ public class ConsultaService {
         return linhasAfetadas > 0;
     }
 
-    // ========== SERVIÇOS PARA PROFESSORES ==========
+    
     
     public Professor criarProfessor(Professor professor) {
         int linhasAfetadas = consultaRepository.inserirProfessor(professor);
