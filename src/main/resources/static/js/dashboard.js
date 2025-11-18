@@ -1,4 +1,3 @@
- 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Dashboard inicializado - conectando com API REST");
     
@@ -594,30 +593,23 @@ function createFreqRecursosVsEstudoChart() {
 function exibirResultadosTabela(elementId, dados, titulo) {
     const div = document.getElementById(elementId);
     if (!div) return;
-    
-    if (!dados || dados.length === 0) {
+    if (!Array.isArray(dados) || dados.length === 0) {
         div.innerHTML = '<p style="color: orange;">⚠️ Nenhum resultado encontrado.</p>';
         return;
     }
-    
     let html = `<h4>${titulo}</h4><table style="width: 100%; border-collapse: collapse; margin-top: 1rem;"><thead><tr>`;
-    
-    // Cabeçalho da tabela
-    const keys = Object.keys(dados[0]);
+    const keys = Object.keys(dados[0] || {});
     keys.forEach(key => {
         html += `<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">${key}</th>`;
     });
     html += '</tr></thead><tbody>';
-    
-    // Dados da tabela
     dados.forEach(row => {
         html += '<tr>';
         keys.forEach(key => {
-            html += `<td style="border: 1px solid #ddd; padding: 8px;">${row[key] !== null ? row[key] : '-'}</td>`;
+            html += `<td style="border: 1px solid #ddd; padding: 8px;">${row[key] !== null && row[key] !== undefined ? row[key] : '-'}</td>`;
         });
         html += '</tr>';
     });
-    
     html += '</tbody></table>';
     div.innerHTML = html;
 }
@@ -821,239 +813,49 @@ async function atualizarFrequenciaAluno() {
     }
 }
 
-// Removido: funções de navegação de conselhos por professor e atualização de frequência do aluno
+// ========== PROCEDIMENTOS ===========
 
-// =========================================================================
-// FUNÇÕES SQL AVANÇADAS
-// =========================================================================
-
-// Função auxiliar para exibir resultados em tabela
-function exibirResultadosTabela(elementId, dados, titulo) {
-    const div = document.getElementById(elementId);
-    if (!div) return;
-    
-    if (!dados || dados.length === 0) {
-        div.innerHTML = '<p style="color: orange;">⚠️ Nenhum resultado encontrado.</p>';
+async function criarConselho() {
+    const idProf = document.getElementById('idProfConselho').value;
+    const descricao = document.getElementById('descricaoConselho').value;
+    let data = document.getElementById('dataConselho').value;
+    const div = document.getElementById('resultado-criar-conselho');
+    div.innerHTML = '<p>🔄 Criando conselho...</p>';
+    if (!idProf || !descricao) {
+        div.innerHTML = '<p style="color: orange;">⚠️ Informe o ID do professor e a descrição.</p>';
         return;
     }
-    
-    let html = `<h4>${titulo}</h4><table style="width: 100%; border-collapse: collapse; margin-top: 1rem;"><thead><tr>`;
-    
-    // Cabeçalho da tabela
-    const keys = Object.keys(dados[0]);
-    keys.forEach(key => {
-        html += `<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">${key}</th>`;
-    });
-    html += '</tr></thead><tbody>';
-    
-    // Dados da tabela
-    dados.forEach(row => {
-        html += '<tr>';
-        keys.forEach(key => {
-            html += `<td style="border: 1px solid #ddd; padding: 8px;">${row[key] !== null ? row[key] : '-'}</td>`;
-        });
-        html += '</tr>';
-    });
-    
-    html += '</tbody></table>';
-    div.innerHTML = html;
-}
-
-// Inicializar estruturas avançadas
-async function inicializarEstruturasAvancadas() {
-    const resultadoDiv = document.getElementById('resultado-avancado');
-    resultadoDiv.innerHTML = '<p>🔄 Inicializando estruturas avançadas...</p>';
-    
+    if (!data) {
+        // Se não informado, usa data atual
+        data = new Date().toISOString().slice(0, 10);
+    }
     try {
-        const response = await fetch('/api/sql-avancado/inicializar', {
-            method: 'POST'
+        const response = await fetch('/api/sql-avancado/procedimento/criar-conselho', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idProf: parseInt(idProf), descricao, data })
         });
         const resultado = await response.json();
-        
         if (resultado.success) {
-            resultadoDiv.innerHTML = '<p style="color: green;">✅ ' + resultado.message + '</p>';
+            div.innerHTML = `<p style="color: green;">✅ ${resultado.message}</p><p>ID Conselho: ${resultado.idConselho}</p>`;
         } else {
-            resultadoDiv.innerHTML = '<p style="color: red;">❌ Erro: ' + resultado.message + '</p>';
+            div.innerHTML = `<p style="color: red;">❌ Erro: ${resultado.error || 'Não foi possível criar o conselho.'}</p>`;
         }
     } catch (error) {
-        resultadoDiv.innerHTML = '<p style="color: red;">❌ Erro de conexão: ' + error.message + '</p>';
+        div.innerHTML = `<p style="color: red;">❌ Erro de conexão: ${error.message}</p>`;
     }
 }
 
-// ========== CONSULTAS SQL ==========
+// ========== LOGS E AUDITORIA ===========
 
-async function consultarProfessoresSemOfertas() {
-    const div = document.getElementById('resultado-consultas');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
+async function consultarLogPagamento() {
+    const div = document.getElementById('resultado-log-pagamento');
+    div.innerHTML = '<p>🔄 Consultando log de pagamentos...</p>';
     try {
-        const response = await fetch('/api/sql-avancado/professores-sem-ofertas');
+        const response = await fetch('/api/sql-avancado/log/pagamento');
         const dados = await response.json();
-        exibirResultadosTabela('resultado-consultas', dados, 'Professores sem Ofertas');
+        exibirResultadosTabela('resultado-log-pagamento', dados, 'Log de Pagamentos');
     } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-async function consultarAlunosEProfessoresEmails() {
-    const div = document.getElementById('resultado-consultas');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch('/api/sql-avancado/alunos-professores-emails');
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-consultas', dados, 'Alunos e Professores com Emails');
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-async function consultarAlunosAcimaMedia() {
-    const div = document.getElementById('resultado-consultas');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch('/api/sql-avancado/alunos-acima-media');
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-consultas', dados, 'Alunos com Média Acima da Média Geral');
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-async function consultarAlunosTurmas2023() {
-    const div = document.getElementById('resultado-consultas');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch('/api/sql-avancado/alunos-turmas-2023');
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-consultas', dados, 'Alunos Matriculados em Turmas de 2023');
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-// ========== VIEWS ==========
-
-async function consultarViewDetalhesAcademicos() {
-    const div = document.getElementById('resultado-view-aluno');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch('/api/sql-avancado/view/detalhes-academicos-aluno');
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-view-aluno', dados, 'Detalhes Acadêmicos dos Alunos');
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-async function consultarViewDetalhesAcademicosPorId() {
-    const idAluno = document.getElementById('idAlunoView').value;
-    if (!idAluno) {
-        alert('Por favor, informe o ID do aluno');
-        return;
-    }
-    
-    const div = document.getElementById('resultado-view-aluno');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch(`/api/sql-avancado/view/detalhes-academicos-aluno/${idAluno}`);
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-view-aluno', dados, `Detalhes Acadêmicos do Aluno ID ${idAluno}`);
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-async function consultarViewPerfilProfessor() {
-    const div = document.getElementById('resultado-view-professor');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch('/api/sql-avancado/view/perfil-completo-professor');
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-view-professor', dados, 'Perfil Completo dos Professores');
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-async function consultarViewPerfilProfessorPorId() {
-    const idProf = document.getElementById('idProfView').value;
-    if (!idProf) {
-        alert('Por favor, informe o ID do professor');
-        return;
-    }
-    
-    const div = document.getElementById('resultado-view-professor');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch(`/api/sql-avancado/view/perfil-completo-professor/${idProf}`);
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-view-professor', dados, `Perfil Completo do Professor ID ${idProf}`);
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-// ========== FUNÇÕES ==========
-
-async function consultarSituacaoAluno() {
-    const idAluno = document.getElementById('idAlunoFuncao').value;
-    if (!idAluno) {
-        alert('Por favor, informe o ID do aluno');
-        return;
-    }
-    
-    const div = document.getElementById('resultado-funcao-situacao');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch(`/api/sql-avancado/funcao/situacao-aluno/${idAluno}`);
-        const resultado = await response.json();
-        
-        if (resultado.error) {
-            div.innerHTML = '<p style="color: red;">❌ Erro: ' + resultado.error + '</p>';
-        } else {
-            div.innerHTML = `<p style="color: green;"><strong>Situação do Aluno ID ${resultado.idAluno}:</strong> ${resultado.situacao}</p>`;
-        }
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
-
-// Função calcularMediaDisciplina removida conforme solicitado
-
-// ========== PROCEDIMENTOS ==========
-
-async function atualizarFrequenciaAluno() {
-    const idAluno = document.getElementById('idAlunoProcedimento').value;
-    const frequenciaNova = document.getElementById('frequenciaNova').value;
-    
-    if (!idAluno || !frequenciaNova) {
-        alert('Por favor, informe o ID do aluno e a nova frequência');
-        return;
-    }
-    
-    const div = document.getElementById('resultado-procedimento-frequencia');
-    div.innerHTML = '<p>🔄 Atualizando...</p>';
-    
-    try {
-        const response = await fetch(`/api/sql-avancado/procedimento/atualizar-frequencia?idAluno=${idAluno}&frequenciaNova=${frequenciaNova}`, {
-            method: 'PUT'
-        });
-        const resultado = await response.json();
-        
-        if (resultado.success) {
-            div.innerHTML = `<p style="color: green;">✅ ${resultado.message}</p><p>Frequência do Aluno ID ${resultado.idAluno} atualizada para ${resultado.frequenciaNova}%</p>`;
-        } else {
-            div.innerHTML = '<p style="color: red;">❌ Erro: ' + resultado.error + '</p>';
-        }
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
+        div.innerHTML = `<p style="color: red;">❌ Erro: ${error.message}</p>`;
     }
 }

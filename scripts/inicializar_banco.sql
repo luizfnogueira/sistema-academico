@@ -343,10 +343,9 @@ END$$
 DELIMITER ;
 
 
+
 DROP TRIGGER IF EXISTS logPagamento;
-
 DELIMITER $$
-
 CREATE TRIGGER logPagamento
 AFTER INSERT ON Pagamento
 FOR EACH ROW
@@ -354,28 +353,23 @@ BEGIN
     INSERT INTO Log_Pagamento (Id_Pagamento, Status, Data_Registro)
     VALUES (NEW.Id_Pagamento, NEW.Status, NOW());
 END$$
-
 DELIMITER ;
 
+
 DROP TRIGGER IF EXISTS recalcularMediaGeralAluno;
-
 DELIMITER $$
-
 CREATE TRIGGER recalcularMediaGeralAluno
 AFTER INSERT ON Avaliacao
 FOR EACH ROW
 BEGIN
     DECLARE novaMedia DECIMAL(4,2);
-    
     SELECT AVG(Valor) INTO novaMedia 
     FROM Avaliacao
     WHERE Id_Aluno = NEW.Id_Aluno;
-    
     UPDATE Aluno a
     SET a.Media = novaMedia
     WHERE a.Id_Aluno = NEW.Id_Aluno;
 END$$
-
 DELIMITER ;
 
 

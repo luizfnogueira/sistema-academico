@@ -141,22 +141,23 @@ public class SqlAvancadoController {
         return ResponseEntity.ok(sqlAvancadoService.consultarConselhosPorProfessor(idProf));
     }
     
-    @PostMapping("/conselhos")
-    public ResponseEntity<Map<String, Object>> criarConselho(
-            @RequestParam int idProf,
-            @RequestParam String descricao,
-            @RequestParam(required = false) String data) {
+    @PostMapping("/procedimento/criar-conselho")
+    public ResponseEntity<Map<String, Object>> criarConselhoEAtribuir(@RequestBody Map<String, Object> payload) {
         Map<String, Object> response = new HashMap<>();
         try {
+            int idProf = (int) payload.get("idProf");
+            String descricao = (String) payload.get("descricao");
+            String dataStr = (String) payload.get("data");
             java.sql.Date dataSql;
-            if (data == null || data.isEmpty()) {
+            if (dataStr == null || dataStr.isEmpty()) {
                 dataSql = new java.sql.Date(System.currentTimeMillis());
             } else {
-                dataSql = java.sql.Date.valueOf(data);
+                dataSql = java.sql.Date.valueOf(dataStr);
             }
-            sqlAvancadoService.criarConselhoEAtribuir(idProf, descricao, dataSql);
+            int idConselho = sqlAvancadoService.criarConselhoEAtribuir(idProf, descricao, dataSql);
             response.put("success", true);
             response.put("message", "Conselho criado e atribuído com sucesso!");
+            response.put("idConselho", idConselho);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
@@ -169,6 +170,11 @@ public class SqlAvancadoController {
     
     @GetMapping("/log-pagamento")
     public ResponseEntity<List<Map<String, Object>>> logPagamento() {
+        return ResponseEntity.ok(sqlAvancadoService.consultarLogPagamento());
+    }
+    
+    @GetMapping("/log/pagamento")
+    public ResponseEntity<List<Map<String, Object>>> logPagamentoCompat() {
         return ResponseEntity.ok(sqlAvancadoService.consultarLogPagamento());
     }
     

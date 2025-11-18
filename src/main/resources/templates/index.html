@@ -390,60 +390,25 @@
 
     <section class="card card-wide">
         <h2>🔄 Procedimentos SQL</h2>
-        
-        <div class="form-grid">
-            <h3>Atualizar Frequência do Aluno</h3>
-            <label>
-                ID do Aluno:
-                <input type="number" id="idAlunoProcedimento" placeholder="ID do Aluno" required>
-            </label>
-            <label>
-                Nova Frequência (0-100):
-                <input type="number" id="frequenciaNova" placeholder="Frequência" min="0" max="100" step="0.1" required>
-            </label>
-            <button onclick="atualizarFrequenciaAluno()" class="consulta-btn">Atualizar Frequência</button>
-            <div id="resultado-procedimento-frequencia" style="margin-top: 1rem;"></div>
-        </div>
-
-        <div class="form-grid" style="margin-top: 2rem;">
-            <h3>Consultar Conselhos por Professor (Navegação)</h3>
-            <label>
-                ID do Professor:
-                <input type="number" id="idProfConselhos" placeholder="ID do Professor" style="width: 150px;">
-                <button onclick="iniciarNavegacaoConselhos()" class="consulta-btn">Iniciar Navegação</button>
-            </label>
-            <div id="resultado-procedimento-conselhos" style="margin-top: 1rem;"></div>
-            <div id="navegacao-conselhos" style="margin-top: 1rem; display: none;">
-                <button onclick="proximoConselho()" class="consulta-btn">Próximo Conselho →</button>
-            </div>
-        </div>
-        
         <div class="form-grid" style="margin-top: 2rem;">
             <h3>Criar Conselho e Atribuir a Professor</h3>
-            <label>
-                ID do Professor:
-                <input type="number" id="idProfConselho" placeholder="ID do Professor" required>
-            </label>
-            <label>
-                Descrição do Conselho:
-                <input type="text" id="descricaoConselho" placeholder="Descrição" required>
-            </label>
-            <label>
-                Data (opcional, deixe vazio para data atual):
-                <input type="date" id="dataConselho">
-            </label>
-            <button onclick="criarConselho()" class="consulta-btn">Criar e Atribuir Conselho</button>
+            <label for="idProfConselho">ID do Professor:</label>
+            <input type="number" id="idProfConselho" placeholder="ID do Professor" required>
+            <label for="descricaoConselho">Descrição do Conselho:</label>
+            <input type="text" id="descricaoConselho" placeholder="Descrição" required>
+            <label for="dataConselho">Data (opcional, deixe vazio para data atual):</label>
+            <input type="date" id="dataConselho">
+            <button type="button" onclick="criarConselho()" class="consulta-btn">Criar e Atribuir Conselho</button>
             <div id="resultado-criar-conselho" style="margin-top: 1rem;"></div>
         </div>
     </section>
 
     <section class="card card-wide">
         <h2>📝 Logs e Auditoria</h2>
-        
         <div class="form-grid">
             <h3>Log de Pagamentos</h3>
             <p>Visualize o histórico de pagamentos registrado automaticamente pelo trigger:</p>
-            <button onclick="consultarLogPagamento()" class="consulta-btn">Ver Log de Pagamentos</button>
+            <button type="button" onclick="consultarLogPagamento()" class="consulta-btn">Ver Log de Pagamentos</button>
             <div id="resultado-log-pagamento" style="margin-top: 1rem;"></div>
         </div>
     </section>
