@@ -43,6 +43,10 @@
                 <input type="text" name="nome" required>
             </label>
             <label>
+                Data de Nascimento:
+                <input type="date" name="dataNasc" required>
+            </label>
+            <label>
                 Idade:
                 <input type="number" name="idade" min="16" max="100" required>
             </label>
@@ -66,6 +70,22 @@
                 CEP:
                 <input type="text" name="cep" placeholder="00000-000">
             </label>
+            <label>
+                ID da Turma (opcional):
+                <input type="number" name="idTurma">
+            </label>
+            <label>
+                Responsável - Nome (opcional):
+                <input type="text" name="responsavelNome">
+            </label>
+            <label>
+                Responsável - Data Nascimento (opcional):
+                <input type="date" name="responsavelDataNasc">
+            </label>
+            <label>
+                Responsável - Parentesco (opcional):
+                <input type="text" name="responsavelParentesco" placeholder="Ex: Pai, Mãe, etc">
+            </label>
             <button type="submit">Criar Aluno</button>
         </form>
 
@@ -79,6 +99,10 @@
             <label>
                 Nome:
                 <input type="text" name="nome">
+            </label>
+            <label>
+                Data de Nascimento:
+                <input type="date" name="dataNasc">
             </label>
             <label>
                 Idade:
@@ -99,6 +123,30 @@
             <label>
                 Frequência:
                 <input type="number" name="frequencia" min="0" max="100" step="0.1">
+            </label>
+            <label>
+                Status de Pagamento:
+                <select name="statusPagamento">
+                    <option value="">Manter atual</option>
+                    <option value="pendente">Pendente</option>
+                    <option value="pago">Pago</option>
+                </select>
+            </label>
+            <label>
+                ID da Turma (opcional):
+                <input type="number" name="idTurma">
+            </label>
+            <label>
+                Responsável - Nome (opcional):
+                <input type="text" name="responsavelNome">
+            </label>
+            <label>
+                Responsável - Data Nascimento (opcional):
+                <input type="date" name="responsavelDataNasc">
+            </label>
+            <label>
+                Responsável - Parentesco (opcional):
+                <input type="text" name="responsavelParentesco" placeholder="Ex: Pai, Mãe, etc">
             </label>
             <button type="submit">Atualizar Aluno</button>
         </form>
@@ -198,14 +246,6 @@
                 Carga Horária:
                 <input type="number" name="cargaHoraria" min="20" max="120" required>
             </label>
-            <label>
-                ID do Aluno:
-                <input type="number" name="idAluno">
-            </label>
-            <label>
-                ID da Turma:
-                <input type="number" name="idTurma">
-            </label>
             <button type="submit">Criar Disciplina</button>
         </form>
 
@@ -235,6 +275,68 @@
                 <input type="number" name="id" required>
             </label>
             <button type="submit" class="danger">Deletar Disciplina</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Comandos para Avaliações</h2>
+        
+        <!-- Formulário para Criar Avaliação -->
+        <form class="form-grid" data-action="create-avaliacao">
+            <h3>Criar Nova Avaliação</h3>
+            <label>
+                Valor (0-10):
+                <input type="number" name="valor" min="0" max="10" step="0.1" required>
+            </label>
+            <label>
+                Data:
+                <input type="date" name="data" required>
+            </label>
+            <label>
+                ID do Aluno:
+                <input type="number" name="idAluno" required>
+            </label>
+            <label>
+                ID da Disciplina:
+                <input type="number" name="idDisc" required>
+            </label>
+            <button type="submit">Criar Avaliação</button>
+        </form>
+
+        <!-- Formulário para Atualizar Avaliação -->
+        <form class="form-grid" data-action="update-avaliacao">
+            <h3>Atualizar Avaliação</h3>
+            <label>
+                ID da Avaliação:
+                <input type="number" name="id" required>
+            </label>
+            <label>
+                Valor (0-10):
+                <input type="number" name="valor" min="0" max="10" step="0.1">
+            </label>
+            <label>
+                Data:
+                <input type="date" name="data">
+            </label>
+            <label>
+                ID do Aluno:
+                <input type="number" name="idAluno">
+            </label>
+            <label>
+                ID da Disciplina:
+                <input type="number" name="idDisc">
+            </label>
+            <button type="submit">Atualizar Avaliação</button>
+        </form>
+
+        <!-- Formulário para Deletar Avaliação -->
+        <form class="form-grid" data-action="delete-avaliacao">
+            <h3>Deletar Avaliação</h3>
+            <label>
+                ID da Avaliação:
+                <input type="number" name="id" required>
+            </label>
+            <button type="submit" class="danger">Deletar Avaliação</button>
         </form>
     </section>
 
@@ -306,6 +408,16 @@
             <div id="resultado-funcao-situacao" style="margin-top: 1rem;"></div>
         </div>
 
+        <div class="form-grid" style="margin-top: 2rem;">
+            <h3>Calcular Média de Turma</h3>
+            <label>
+                ID da Turma:
+                <input type="number" id="idTurmaMedia" placeholder="ID da Turma" required>
+                <button onclick="calcularMediaTurma()" class="consulta-btn">Calcular Média</button>
+            </label>
+            <div id="resultado-media-turma" style="margin-top: 1rem;"></div>
+        </div>
+
         <!-- Função calcularMediaDisciplina removida conforme solicitado -->
     </section>
 
@@ -327,24 +439,16 @@
         </div>
 
         <div class="form-grid" style="margin-top: 2rem;">
-            <h3>Contar Conselhos por Professor</h3>
-            <button onclick="consultarResumoConselhos()" class="consulta-btn">Ver Resumo</button>
+            <h3>Consultar Conselhos por Professor (Navegação)</h3>
             <label>
-                Buscar conselhos por ID do Professor:
+                ID do Professor:
                 <input type="number" id="idProfConselhos" placeholder="ID do Professor" style="width: 150px;">
-                <button onclick="consultarConselhosPorProfessor()" class="consulta-btn">Buscar</button>
+                <button onclick="iniciarNavegacaoConselhos()" class="consulta-btn">Iniciar Navegação</button>
             </label>
             <div id="resultado-procedimento-conselhos" style="margin-top: 1rem;"></div>
-        </div>
-        
-        <div class="form-grid" style="margin-top: 2rem;">
-            <h3>Calcular Média de Turma</h3>
-            <label>
-                ID da Turma:
-                <input type="number" id="idTurmaMedia" placeholder="ID da Turma" required>
-                <button onclick="calcularMediaTurma()" class="consulta-btn">Calcular Média</button>
-            </label>
-            <div id="resultado-media-turma" style="margin-top: 1rem;"></div>
+            <div id="navegacao-conselhos" style="margin-top: 1rem; display: none;">
+                <button onclick="proximoConselho()" class="consulta-btn">Próximo Conselho →</button>
+            </div>
         </div>
         
         <div class="form-grid" style="margin-top: 2rem;">
@@ -403,30 +507,22 @@
             </div>
         </div>
 
-        <ul class="consulta-list">
-            <li th:each="consulta : ${consultas}" th:text="consulta">Consulta exemplo</li>
-        </ul>
-
-        <div class="graficos-placeholder" th:if="${estatisticas}">
-            <h3 style="margin-top: 1.5rem;">Visualização de Dados em Tabela</h3>
-             <p>As tabelas iniciais foram removidas. Adicione seu código de tabela aqui.</p>
-        </div>
 
         <div class="graficos-section">
             <h3>📊 Gráficos Estatísticos (10 + 4 Pesquisa)</h3>
             
             <div class="charts-grid">
                 
-                <div class="chart-container"><h4>Desempenho vs. Esforço (Item 1)</h4><canvas id="mediaVsEstudoChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Estresse vs. Projetos (Item 2)</h4><canvas id="estresseVsProjetosChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Suporte Prof. vs. Projetos (Item 3)</h4><canvas id="suporteProfVsProjetosChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Frequência vs. Disciplinas (Item 4)</h4><canvas id="frequenciaVsDisciplinasChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Valor vs. Média Geral (Item 5)</h4><canvas id="valorVsMediaChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Distribuição de Idade (Específica) (Item 11)</h4><canvas id="idadeEspecíficaChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Uso de Recursos (Contagem) (Item 12)</h4><canvas id="recursosChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Situação de Monitoria (Item 13)</h4><canvas id="monitoriaChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Recursos vs. Estudo (Gênero) (Item 14)</h4><canvas id="freqRecursosVsEstudoChart" width="400" height="200"></canvas></div>
-                <div class="chart-container"><h4>Distribuição por Gênero (Barra) (Item 7)</h4><canvas id="generoChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Desempenho vs. Esforço</h4><canvas id="mediaVsEstudoChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Estresse vs. Projetos</h4><canvas id="estresseVsProjetosChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Suporte Prof. vs. Projetos</h4><canvas id="suporteProfVsProjetosChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Frequência vs. Disciplinas</h4><canvas id="frequenciaVsDisciplinasChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Valor vs. Média Geral</h4><canvas id="valorVsMediaChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Distribuição de Idade</h4><canvas id="idadeEspecíficaChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Uso de Recursos</h4><canvas id="recursosChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Situação de Monitoria</h4><canvas id="monitoriaChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Recursos vs. Estudo</h4><canvas id="freqRecursosVsEstudoChart" width="400" height="200"></canvas></div>
+                <div class="chart-container"><h4>Distribuição por Gênero</h4><canvas id="generoChart" width="400" height="200"></canvas></div>
                 
                 </div>
         </div>

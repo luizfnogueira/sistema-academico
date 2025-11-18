@@ -172,15 +172,49 @@ public class SqlAvancadoController {
         return ResponseEntity.ok(sqlAvancadoService.consultarLogPagamento());
     }
     
-    // ========== ENDPOINTS DE PROCEDIMENTOS ADICIONAIS ==========
+    // ========== ENDPOINTS DE FUNÇÕES ==========
     
-    @GetMapping("/procedimento/media-turma/{idTurma}")
+    @GetMapping("/funcao/media-turma/{idTurma}")
     public ResponseEntity<Map<String, Object>> calcularMediaTurma(@PathVariable int idTurma) {
         Map<String, Object> response = new HashMap<>();
         try {
             Double media = sqlAvancadoService.calcularMediaTurma(idTurma);
             response.put("idTurma", idTurma);
             response.put("media", media);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    
+    // ========== ENDPOINTS DE NAVEGAÇÃO DE CONSELHOS (CURSOR SIMULADO) ==========
+    
+    @PostMapping("/conselhos-cursor/iniciar/{idProf}")
+    public ResponseEntity<Map<String, Object>> iniciarNavegacaoConselhos(@PathVariable int idProf) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String cursorId = sqlAvancadoService.iniciarNavegacaoConselhos(idProf);
+            response.put("success", true);
+            response.put("cursorId", cursorId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    
+    @GetMapping("/conselhos-cursor/proximo/{cursorId}")
+    public ResponseEntity<Map<String, Object>> proximoConselho(@PathVariable String cursorId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Map<String, Object> resultado = sqlAvancadoService.proximoConselho(cursorId);
+            if (resultado.containsKey("fim")) {
+                response.put("fim", true);
+            } else {
+                response.put("conselho", resultado);
+            }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("error", e.getMessage());

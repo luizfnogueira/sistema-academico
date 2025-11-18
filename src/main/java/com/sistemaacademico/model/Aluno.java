@@ -13,6 +13,7 @@ public class Aluno {
     private String rua;
     private int num;
     private String cep;
+    private String statusPagamento;
     
     public Aluno() {}
 
@@ -46,6 +47,9 @@ public class Aluno {
 
     public String getCep() { return cep; }
     public void setCep(String cep) { this.cep = cep; }
+
+    public String getStatusPagamento() { return statusPagamento; }
+    public void setStatusPagamento(String statusPagamento) { this.statusPagamento = statusPagamento; }
 
     @Override
     public String toString() {

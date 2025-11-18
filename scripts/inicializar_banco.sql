@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS Aluno (
     CEP VARCHAR(9),
     Rua VARCHAR(255),	
     Media DECIMAL(4,2),
-    Frequencia DECIMAL(5,2) DEFAULT 100 CHECK (Frequencia BETWEEN 0 AND 100)
+    Frequencia DECIMAL(5,2) DEFAULT 100 CHECK (Frequencia BETWEEN 0 AND 100),
+    Status_Pagamento VARCHAR(20) DEFAULT 'pendente' CHECK (Status_Pagamento IN ('pendente','pago'))
 );
 
 -- Tabela Dependente
@@ -237,8 +238,8 @@ CREATE TABLE IF NOT EXISTS Participa (
 -- 4. CRIAR ÍNDICES
 -- ============================================================================
 
-CREATE INDEX IF NOT EXISTS idx_aluno_nome ON Aluno (Nome);
-CREATE INDEX IF NOT EXISTS idx_aluno_media ON Aluno (Media);
+CREATE INDEX EXISTS idx_aluno_nome ON Aluno (Nome);
+CREATE INDEX EXISTS idx_aluno_media ON Aluno (Media);
 
 -- ============================================================================
 -- 5. CRIAR TABELAS AUXILIARES (para triggers e procedimentos)
@@ -378,18 +379,25 @@ END$$
 
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS calcularMediaTurma;
+DROP FUNCTION IF EXISTS calcularMediaTurma;
 
 DELIMITER $$
 
-CREATE PROCEDURE calcularMediaTurma(IN idTurma INT)
+CREATE FUNCTION calcularMediaTurma(idTurma INT)
+RETURNS DECIMAL(4,2)
+DETERMINISTIC
+READS SQL DATA
 BEGIN
-    SELECT COALESCE(AVG(a.Media), 0) AS mediaTurma
+    DECLARE mediaTurma DECIMAL(4,2);
+    
+    SELECT COALESCE(AVG(a.Media), 0) INTO mediaTurma
     FROM Aluno a
     JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
     WHERE m.Id_Turma = idTurma
     AND a.Media IS NOT NULL
     AND a.Media > 0;
+    
+    RETURN mediaTurma;
 END$$
 
 DELIMITER ;

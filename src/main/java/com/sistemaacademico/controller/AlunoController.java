@@ -68,10 +68,20 @@ public class AlunoController {
     @PostMapping("/alunos")
     public ResponseEntity<?> criarAluno(@RequestBody Aluno aluno) {
         try {
-            // A validação no service precisa ser ajustada para Data_Nasc se necessário
-            // if (!consultaService.validarAluno(aluno)) {
-            //     return ResponseEntity.badRequest().body("Dados do aluno inválidos");
-            // }
+            // Validações detalhadas
+            if (aluno.getNome() == null || aluno.getNome().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Erro: Nome do aluno é obrigatório");
+            }
+            if (aluno.getDataNasc() == null) {
+                return ResponseEntity.badRequest().body("Erro: Data de nascimento é obrigatória");
+            }
+            if (aluno.getIdade() < 16) {
+                return ResponseEntity.badRequest().body("Erro: Idade mínima é 16 anos");
+            }
+            if (aluno.getSexo() == null || (!aluno.getSexo().equals("M") && !aluno.getSexo().equals("F"))) {
+                return ResponseEntity.badRequest().body("Erro: Sexo deve ser 'M' ou 'F'");
+            }
+            
             Aluno alunoCriado = consultaService.criarAluno(aluno);
             return ResponseEntity.status(HttpStatus.CREATED).body(alunoCriado);
         } catch (Exception e) {
@@ -139,9 +149,14 @@ public class AlunoController {
     @PostMapping("/disciplinas")
     public ResponseEntity<?> criarDisciplina(@RequestBody Disciplina disciplina) {
         try {
-            if (!consultaService.validarDisciplina(disciplina)) {
-                return ResponseEntity.badRequest().body("Dados da disciplina inválidos");
+            // Validações detalhadas
+            if (disciplina.getNome() == null || disciplina.getNome().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Erro: Nome da disciplina é obrigatório");
             }
+            if (disciplina.getCargaHoraria() < 20 || disciplina.getCargaHoraria() > 120) {
+                return ResponseEntity.badRequest().body("Erro: Carga horária deve estar entre 20 e 120 horas");
+            }
+            
             Disciplina disciplinaCriada = consultaService.criarDisciplina(disciplina);
             return ResponseEntity.status(HttpStatus.CREATED).body(disciplinaCriada);
         } catch (Exception e) {
@@ -204,14 +219,138 @@ public class AlunoController {
         }
     }
 
+    // ========== ENDPOINTS CRUD PARA AVALIAÇÕES ==========
+    
+    @PostMapping("/avaliacoes")
+    public ResponseEntity<?> criarAvaliacao(@RequestBody com.sistemaacademico.model.Avaliacao avaliacao) {
+        try {
+            // Validações
+            if (avaliacao.getValor() < 0 || avaliacao.getValor() > 10) {
+                return ResponseEntity.badRequest().body("Erro: Valor da avaliação deve estar entre 0 e 10");
+            }
+            if (avaliacao.getIdAluno() <= 0) {
+                return ResponseEntity.badRequest().body("Erro: ID do Aluno é obrigatório");
+            }
+            if (avaliacao.getIdDisc() <= 0) {
+                return ResponseEntity.badRequest().body("Erro: ID da Disciplina é obrigatório");
+            }
+            if (avaliacao.getData() == null) {
+                return ResponseEntity.badRequest().body("Erro: Data da avaliação é obrigatória");
+            }
+            
+            com.sistemaacademico.model.Avaliacao avaliacaoCriada = consultaService.criarAvaliacao(avaliacao);
+            return ResponseEntity.status(HttpStatus.CREATED).body(avaliacaoCriada);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar avaliação: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/avaliacoes")
+    public ResponseEntity<List<com.sistemaacademico.model.Avaliacao>> listarAvaliacoes() {
+        try {
+            List<com.sistemaacademico.model.Avaliacao> avaliacoes = consultaService.listarAvaliacoes();
+            return ResponseEntity.ok(avaliacoes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/avaliacoes/{id}")
+    public ResponseEntity<com.sistemaacademico.model.Avaliacao> buscarAvaliacaoPorId(@PathVariable int id) {
+        try {
+            com.sistemaacademico.model.Avaliacao avaliacao = consultaService.buscarAvaliacaoPorId(id);
+            if (avaliacao != null) {
+                return ResponseEntity.ok(avaliacao);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/avaliacoes/{id}")
+    public ResponseEntity<?> atualizarAvaliacao(@PathVariable int id, @RequestBody com.sistemaacademico.model.Avaliacao avaliacao) {
+        try {
+            // Validações
+            if (avaliacao.getValor() != 0.0 && (avaliacao.getValor() < 0 || avaliacao.getValor() > 10)) {
+                return ResponseEntity.badRequest().body("Erro: Valor da avaliação deve estar entre 0 e 10");
+            }
+            
+            avaliacao.setIdAvalia(id);
+            com.sistemaacademico.model.Avaliacao avaliacaoAtualizada = consultaService.atualizarAvaliacao(avaliacao);
+            return ResponseEntity.ok(avaliacaoAtualizada);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar avaliação: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/avaliacoes/{id}")
+    public ResponseEntity<String> deletarAvaliacao(@PathVariable int id) {
+        try {
+            boolean deletado = consultaService.deletarAvaliacao(id);
+            if (deletado) {
+                return ResponseEntity.ok("Avaliação deletada com sucesso");
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao deletar avaliação: " + e.getMessage());
+        }
+    }
+
+    // ========== ENDPOINTS PARA MATRÍCULAS ==========
+    
+    @PostMapping("/matriculas")
+    public ResponseEntity<?> criarMatricula(@RequestBody Map<String, Object> matricula) {
+        try {
+            int idAluno = Integer.parseInt(matricula.get("idAluno").toString());
+            int idTurma = Integer.parseInt(matricula.get("idTurma").toString());
+            String dataStr = matricula.get("data") != null ? matricula.get("data").toString() : null;
+            
+            java.sql.Date data = dataStr != null ? java.sql.Date.valueOf(dataStr) : new java.sql.Date(System.currentTimeMillis());
+            
+            consultaRepository.criarMatricula(idAluno, idTurma, data);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Matrícula criada com sucesso");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar matrícula: " + e.getMessage());
+        }
+    }
+
+    // ========== ENDPOINTS PARA DEPENDENTES ==========
+    
+    @PostMapping("/dependentes")
+    public ResponseEntity<?> criarDependente(@RequestBody Map<String, Object> dependente) {
+        try {
+            int idAluno = Integer.parseInt(dependente.get("idAluno").toString());
+            String nome = dependente.get("nome").toString();
+            String dataNascStr = dependente.get("dataNasc").toString();
+            String parentesco = dependente.get("parentesco") != null ? dependente.get("parentesco").toString() : null;
+            
+            java.sql.Date dataNasc = java.sql.Date.valueOf(dataNascStr);
+            
+            consultaRepository.criarDependente(idAluno, nome, dataNasc, parentesco);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Dependente criado com sucesso");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar dependente: " + e.getMessage());
+        }
+    }
+
     // ========== ENDPOINTS CRUD PARA PROFESSORES ==========
     
     @PostMapping("/professores")
     public ResponseEntity<?> criarProfessor(@RequestBody Professor professor) {
         try {
-            if (!consultaService.validarProfessor(professor)) {
-                return ResponseEntity.badRequest().body("Dados do professor inválidos");
+            // Validações detalhadas
+            if (professor.getNome() == null || professor.getNome().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Erro: Nome do professor é obrigatório");
             }
+            
             Professor professorCriado = consultaService.criarProfessor(professor);
             return ResponseEntity.status(HttpStatus.CREATED).body(professorCriado);
         } catch (Exception e) {
@@ -247,11 +386,12 @@ public class AlunoController {
     @PutMapping("/professores/{id}")
     public ResponseEntity<?> atualizarProfessor(@PathVariable int id, @RequestBody Professor professor) {
         try {
-            if (!consultaService.validarProfessor(professor)) {
-                return ResponseEntity.badRequest().body("Dados do professor inválidos");
-            }
             professor.setIdProf(id);
             Professor professorAtualizado = consultaService.atualizarProfessor(professor);
+            // Validar após mesclar com dados existentes
+            if (!consultaService.validarProfessor(professorAtualizado)) {
+                return ResponseEntity.badRequest().body("Dados do professor inválidos");
+            }
             return ResponseEntity.ok(professorAtualizado);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

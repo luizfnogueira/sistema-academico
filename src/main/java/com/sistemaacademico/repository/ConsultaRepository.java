@@ -25,14 +25,14 @@ public class ConsultaRepository {
                 "Id_Aluno INT PRIMARY KEY AUTO_INCREMENT," +
                 "Nome VARCHAR(255) NOT NULL," +
                 "Sexo CHAR(1) CHECK (Sexo IN ('M','F'))," +
-                "Data_Nasc DATE NOT NULL," + // Adicionado
+                "Data_Nasc DATE NOT NULL," +
                 "Idade INT CHECK (Idade >= 16)," +
                 "Num INT," +
                 "CEP VARCHAR(9)," +
                 "Rua VARCHAR(255)," +
                 "Media DECIMAL(4,2)," +
-                "Frequencia DECIMAL(5,2) DEFAULT 100 CHECK (Frequencia BETWEEN 0 AND 100)" +
-                // Colunas Monitor e Monitorado removidas
+                "Frequencia DECIMAL(5,2) DEFAULT 100 CHECK (Frequencia BETWEEN 0 AND 100)," +
+                "Status_Pagamento VARCHAR(20) DEFAULT 'pendente' CHECK (Status_Pagamento IN ('pendente','pago'))" +
                 ")";
         jdbcTemplate.execute(sql);
     }
@@ -252,19 +252,31 @@ public class ConsultaRepository {
     
     // Inserir novo aluno
     public int inserirAluno(Aluno aluno) {
-        String sql = "INSERT INTO Aluno (Nome, Sexo, Data_Nasc, Idade, Num, CEP, Rua, Media, Frequencia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.update(sql, 
-            aluno.getNome(), 
-            aluno.getSexo(), 
-            aluno.getDataNasc(), // Adicionado
-            aluno.getIdade(), 
-            aluno.getNum(), 
-            aluno.getCep(), 
-            aluno.getRua(), 
-            aluno.getMedia(), 
-            aluno.getFrequencia()
-            // monitor e monitorado removidos
-        );
+        String sql = "INSERT INTO Aluno (Nome, Sexo, Data_Nasc, Idade, Num, CEP, Rua, Media, Frequencia, Status_Pagamento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String statusPagamento = aluno.getStatusPagamento() != null ? aluno.getStatusPagamento() : "pendente";
+        
+        org.springframework.jdbc.support.KeyHolder keyHolder = new org.springframework.jdbc.support.GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            java.sql.PreparedStatement ps = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, aluno.getNome());
+            ps.setString(2, aluno.getSexo());
+            ps.setDate(3, aluno.getDataNasc());
+            ps.setInt(4, aluno.getIdade());
+            ps.setObject(5, aluno.getNum() != 0 ? aluno.getNum() : null);
+            ps.setString(6, aluno.getCep());
+            ps.setString(7, aluno.getRua());
+            ps.setObject(8, aluno.getMedia() != 0.0 ? aluno.getMedia() : null);
+            ps.setObject(9, aluno.getFrequencia() != 0.0 ? aluno.getFrequencia() : null);
+            ps.setString(10, statusPagamento);
+            return ps;
+        }, keyHolder);
+        
+        java.lang.Number key = keyHolder.getKey();
+        if (key != null) {
+            aluno.setIdAluno(key.intValue());
+        }
+        
+        return 1; // Sucesso
     }
 
     // Buscar todos os alunos
@@ -285,21 +297,19 @@ public class ConsultaRepository {
 
     // Atualizar aluno
     public int atualizarAluno(Aluno aluno) {
-        // Nota: Esta query de update é simplificada.
-        // Em um sistema real, você faria updates parciais (só o que mudou).
-        String sql = "UPDATE Aluno SET Nome = ?, Sexo = ?, Data_Nasc = ?, Idade = ?, Num = ?, CEP = ?, Rua = ?, Media = ?, Frequencia = ? WHERE Id_Aluno = ?";
+        String sql = "UPDATE Aluno SET Nome = ?, Sexo = ?, Data_Nasc = ?, Idade = ?, Num = ?, CEP = ?, Rua = ?, Media = ?, Frequencia = ?, Status_Pagamento = ? WHERE Id_Aluno = ?";
         return jdbcTemplate.update(sql, 
             aluno.getNome(), 
             aluno.getSexo(), 
-            aluno.getDataNasc(), // Adicionado
+            aluno.getDataNasc(),
             aluno.getIdade(), 
             aluno.getNum(), 
             aluno.getCep(), 
             aluno.getRua(), 
             aluno.getMedia(), 
             aluno.getFrequencia(),
+            aluno.getStatusPagamento() != null ? aluno.getStatusPagamento() : "pendente",
             aluno.getIdAluno()
-            // monitor e monitorado removidos
         );
     }
 
@@ -352,6 +362,65 @@ public class ConsultaRepository {
     public int deletarDisciplina(int id) {
         String sql = "DELETE FROM Disciplina WHERE Id_Disc = ?";
         return jdbcTemplate.update(sql, id);
+    }
+
+    // ========== OPERAÇÕES CRUD PARA AVALIAÇÕES ==========
+    
+    // Inserir nova avaliação
+    public int inserirAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
+        String sql = "INSERT INTO Avaliacao (Valor, Data, Id_Aluno, Id_Disc) VALUES (?, ?, ?, ?)";
+        return jdbcTemplate.update(sql, 
+            avaliacao.getValor(), 
+            avaliacao.getData(),
+            avaliacao.getIdAluno(), 
+            avaliacao.getIdDisc()
+        );
+    }
+
+    // Buscar todas as avaliações
+    public List<com.sistemaacademico.model.Avaliacao> listarTodasAvaliacoes() {
+        String sql = "SELECT * FROM Avaliacao ORDER BY Data DESC";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(com.sistemaacademico.model.Avaliacao.class));
+    }
+
+    // Buscar avaliação por ID
+    public com.sistemaacademico.model.Avaliacao buscarAvaliacaoPorId(int id) {
+        String sql = "SELECT * FROM Avaliacao WHERE Id_Avalia = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(com.sistemaacademico.model.Avaliacao.class), id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // Atualizar avaliação
+    public int atualizarAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
+        String sql = "UPDATE Avaliacao SET Valor = ?, Data = ?, Id_Aluno = ?, Id_Disc = ? WHERE Id_Avalia = ?";
+        return jdbcTemplate.update(sql, 
+            avaliacao.getValor(), 
+            avaliacao.getData(),
+            avaliacao.getIdAluno(), 
+            avaliacao.getIdDisc(),
+            avaliacao.getIdAvalia()
+        );
+    }
+
+    // Deletar avaliação por ID
+    public int deletarAvaliacao(int id) {
+        String sql = "DELETE FROM Avaliacao WHERE Id_Avalia = ?";
+        return jdbcTemplate.update(sql, id);
+    }
+
+    // ========== OPERAÇÕES PARA MATRÍCULAS E DEPENDENTES ==========
+    
+    public int criarMatricula(int idAluno, int idTurma, java.sql.Date data) {
+        String sql = "INSERT INTO Matricula (Id_Aluno, Id_Turma, Data) VALUES (?, ?, ?)";
+        return jdbcTemplate.update(sql, idAluno, idTurma, data);
+    }
+    
+    public int criarDependente(int idAluno, String nome, java.sql.Date dataNasc, String parentesco) {
+        String sql = "INSERT INTO Dependente (Id_Aluno, Nome, Data_Nasc, Parentesco) VALUES (?, ?, ?, ?)";
+        return jdbcTemplate.update(sql, idAluno, nome, dataNasc, parentesco);
     }
 
     // ========== OPERAÇÕES CRUD PARA PROFESSORES ==========

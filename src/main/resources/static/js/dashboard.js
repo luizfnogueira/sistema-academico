@@ -29,7 +29,47 @@ async function handleFormSubmit(event) {
     
     try {
         let response;
-        const data = Object.fromEntries(formData.entries());
+        let data = Object.fromEntries(formData.entries());
+        
+        // Converter tipos de dados para alunos
+        if (action === 'create-aluno' || action === 'update-aluno') {
+            if (data.idade) data.idade = parseInt(data.idade);
+            if (data.num) data.num = parseInt(data.num);
+            if (data.media) data.media = parseFloat(data.media);
+            if (data.frequencia) data.frequencia = parseFloat(data.frequencia);
+            if (data.idTurma) data.idTurma = parseInt(data.idTurma);
+            
+            // Processar responsável se fornecido
+            const responsavelNome = data.responsavelNome;
+            const responsavelDataNasc = data.responsavelDataNasc;
+            const responsavelParentesco = data.responsavelParentesco;
+            
+            // Remover campos de responsável do objeto principal
+            delete data.responsavelNome;
+            delete data.responsavelDataNasc;
+            delete data.responsavelParentesco;
+            
+            // Armazenar dados de responsável para processar depois
+            if (responsavelNome || responsavelDataNasc || responsavelParentesco) {
+                data._responsavel = {
+                    nome: responsavelNome,
+                    dataNasc: responsavelDataNasc,
+                    parentesco: responsavelParentesco
+                };
+            }
+        }
+        
+        // Converter tipos de dados para professores
+        if (action === 'create-professor' || action === 'update-professor') {
+            if (data.num) data.num = parseInt(data.num);
+        }
+        
+        // Converter tipos de dados para avaliações
+        if (action === 'create-avaliacao' || action === 'update-avaliacao') {
+            if (data.valor) data.valor = parseFloat(data.valor);
+            if (data.idAluno) data.idAluno = parseInt(data.idAluno);
+            if (data.idDisc) data.idDisc = parseInt(data.idDisc);
+        }
         
         switch (action) {
             case 'create-aluno':
@@ -103,9 +143,77 @@ async function handleFormSubmit(event) {
                     method: 'DELETE'
                 });
                 break;
+                
+            case 'create-avaliacao':
+                response = await fetch('/api/avaliacoes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                break;
+                
+            case 'update-avaliacao':
+                const avaliacaoId = data.id;
+                delete data.id;
+                response = await fetch(`/api/avaliacoes/${avaliacaoId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                break;
+                
+            case 'delete-avaliacao':
+                response = await fetch(`/api/avaliacoes/${data.id}`, {
+                    method: 'DELETE'
+                });
+                break;
         }
         
         if (response.ok) {
+            const responseData = await response.json().catch(() => ({ message: 'Operação realizada com sucesso!' }));
+            
+            // Processar turma e responsável para alunos
+            if ((action === 'create-aluno' || action === 'update-aluno')) {
+                let alunoId = responseData.idAluno || (action === 'update-aluno' ? parseInt(data.id) : null);
+                
+                if (alunoId) {
+                    // Atribuir turma se fornecida
+                    if (data.idTurma) {
+                        try {
+                            await fetch('/api/matriculas', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    idAluno: alunoId,
+                                    idTurma: data.idTurma,
+                                    data: new Date().toISOString().split('T')[0]
+                                })
+                            });
+                        } catch (e) {
+                            console.error('Erro ao atribuir turma:', e);
+                        }
+                    }
+                    
+                    // Criar responsável se fornecido
+                    if (data._responsavel && data._responsavel.nome) {
+                        try {
+                            await fetch('/api/dependentes', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    idAluno: alunoId,
+                                    nome: data._responsavel.nome,
+                                    dataNasc: data._responsavel.dataNasc,
+                                    parentesco: data._responsavel.parentesco
+                                })
+                            });
+                        } catch (e) {
+                            console.error('Erro ao criar responsável:', e);
+                        }
+                    }
+                }
+            }
+            
             alert('Operação realizada com sucesso!');
             form.reset();
             // Disparar evento para atualizar gráficos
@@ -462,23 +570,34 @@ function createGeneroChart() {
 // Item 11: Distribuição de Idade (Pizza)
 function createIdadeEspecificaChart() {
     const ctx = document.getElementById('idadeEspecíficaChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.warn('Canvas idadeEspecíficaChart não encontrado');
+        return;
+    }
     
     if (chartInstances['idadeEspecíficaChart']) {
         chartInstances['idadeEspecíficaChart'].destroy();
     }
     
     const rawData = window.distribuicaoIdadeGrafico || [];
-    const labels = rawData.map(item => item.Idade || item.label || 'N/A');
-    const values = rawData.map(item => item.Total || item.value || 0);
+    console.log('Dados de idade:', rawData);
+    
+    let labels, values;
+    if (Array.isArray(rawData) && rawData.length > 0) {
+        labels = rawData.map(item => String(item.Idade || item.label || item.Faixa_Idade || 'N/A'));
+        values = rawData.map(item => Number(item.Total || item.value || item.Count || 0));
+    } else {
+        labels = ['Sem dados'];
+        values = [0];
+    }
 
     chartInstances['idadeEspecíficaChart'] = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: labels.length > 0 ? labels : ['18-20', '21-25', '26+'],
+            labels: labels,
             datasets: [{
                 label: 'Distribuição de Idade',
-                data: values.length > 0 ? values : [0, 0, 0],
+                data: values,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.7)',
                     'rgba(54, 162, 235, 0.7)',
@@ -501,28 +620,40 @@ function createIdadeEspecificaChart() {
 // Item 12: Uso de Recursos (Pizza)
 function createRecursosChart() {
     const ctx = document.getElementById('recursosChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.warn('Canvas recursosChart não encontrado');
+        return;
+    }
     
     if (chartInstances['recursosChart']) {
         chartInstances['recursosChart'].destroy();
     }
     
     const rawData = window.distribuicaoRecursos || [];
-    const labels = rawData.map(item => item.Tipo || item.label || 'N/A');
-    const values = rawData.map(item => item.Total || item.value || 0);
+    console.log('Dados de recursos:', rawData);
+    
+    let labels, values;
+    if (Array.isArray(rawData) && rawData.length > 0) {
+        labels = rawData.map(item => String(item.Tipo || item.Recurso || item.label || 'N/A'));
+        values = rawData.map(item => Number(item.Total || item.value || item.Count || 0));
+    } else {
+        labels = ['Sem dados'];
+        values = [0];
+    }
 
     chartInstances['recursosChart'] = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: labels.length > 0 ? labels : ['Tipo 1', 'Tipo 2'],
+            labels: labels,
             datasets: [{
                 label: 'Uso de Recursos',
-                data: values.length > 0 ? values : [0, 0],
+                data: values,
                 backgroundColor: [
                     'rgba(54, 162, 235, 0.7)',
                     'rgba(255, 99, 132, 0.7)',
                     'rgba(255, 206, 86, 0.7)',
-                    'rgba(75, 192, 192, 0.7)'
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
                 ]
             }]
         },
@@ -539,26 +670,39 @@ function createRecursosChart() {
 // Item 13: Situação de Monitoria (Pizza)
 function createMonitoriaChart() {
     const ctx = document.getElementById('monitoriaChart');
-    if (!ctx) return;
+    if (!ctx) {
+        console.warn('Canvas monitoriaChart não encontrado');
+        return;
+    }
     
     if (chartInstances['monitoriaChart']) {
         chartInstances['monitoriaChart'].destroy();
     }
     
     const rawData = window.dadosMonitoria || [];
-    const labels = rawData.map(item => item.Situacao || item.label || 'N/A');
-    const values = rawData.map(item => item.Total || item.value || 0);
+    console.log('Dados de monitoria:', rawData);
+    
+    let labels, values;
+    if (Array.isArray(rawData) && rawData.length > 0) {
+        labels = rawData.map(item => String(item.Situacao || item.Status || item.label || 'N/A'));
+        values = rawData.map(item => Number(item.Total || item.value || item.Count || 0));
+    } else {
+        labels = ['Sem dados'];
+        values = [0];
+    }
 
     chartInstances['monitoriaChart'] = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: labels.length > 0 ? labels : ['Monitor', 'Monitorado'],
+            labels: labels,
             datasets: [{
                 label: 'Situação de Monitoria',
-                data: values.length > 0 ? values : [0, 0],
+                data: values,
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)'
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)'
                 ]
             }]
         },
@@ -846,33 +990,83 @@ async function atualizarFrequenciaAluno() {
 
 // Função contarConselhosPorProfessor removida - apenas ver resumo e buscar por id
 
-async function consultarResumoConselhos() {
-    const div = document.getElementById('resultado-procedimento-conselhos');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
-    
-    try {
-        const response = await fetch('/api/sql-avancado/resumo-conselhos');
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-procedimento-conselhos', dados, 'Resumo de Conselhos por Professor');
-    } catch (error) {
-        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
-    }
-}
+// Variável global para controlar navegação de conselhos
+let cursorConselhosId = null;
+let idProfAtual = null;
 
-async function consultarConselhosPorProfessor() {
+async function iniciarNavegacaoConselhos() {
     const idProf = document.getElementById('idProfConselhos').value;
     if (!idProf) {
         alert('Por favor, informe o ID do professor');
         return;
     }
     
+    idProfAtual = idProf;
     const div = document.getElementById('resultado-procedimento-conselhos');
-    div.innerHTML = '<p>🔄 Consultando...</p>';
+    const navDiv = document.getElementById('navegacao-conselhos');
+    
+    div.innerHTML = '<p>🔄 Iniciando navegação...</p>';
     
     try {
-        const response = await fetch(`/api/sql-avancado/conselhos-por-professor/${idProf}`);
-        const dados = await response.json();
-        exibirResultadosTabela('resultado-procedimento-conselhos', dados, `Conselhos do Professor ID ${idProf}`);
+        const response = await fetch(`/api/sql-avancado/conselhos-cursor/iniciar/${idProf}`, {
+            method: 'POST'
+        });
+        const resultado = await response.json();
+        
+        if (resultado.success) {
+            cursorConselhosId = resultado.cursorId;
+            navDiv.style.display = 'block';
+            await proximoConselho();
+        } else {
+            div.innerHTML = '<p style="color: red;">❌ Erro: ' + resultado.error + '</p>';
+            navDiv.style.display = 'none';
+        }
+    } catch (error) {
+        div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
+        navDiv.style.display = 'none';
+    }
+}
+
+async function proximoConselho() {
+    if (!cursorConselhosId || !idProfAtual) {
+        alert('Por favor, inicie a navegação primeiro');
+        return;
+    }
+    
+    const div = document.getElementById('resultado-procedimento-conselhos');
+    div.innerHTML = '<p>🔄 Carregando próximo conselho...</p>';
+    
+    try {
+        const response = await fetch(`/api/sql-avancado/conselhos-cursor/proximo/${cursorConselhosId}`, {
+            method: 'GET'
+        });
+        const resultado = await response.json();
+        
+        if (resultado.fim) {
+            div.innerHTML = '<p style="color: orange;">⚠️ Não existem mais conselhos para o professor.</p>';
+            document.getElementById('navegacao-conselhos').style.display = 'none';
+            cursorConselhosId = null;
+        } else if (resultado.conselho) {
+            const conselho = resultado.conselho;
+            let html = '<h4>Conselho do Professor ID ' + idProfAtual + '</h4>';
+            html += '<table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">';
+            html += '<thead><tr>';
+            html += '<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">ID Conselho</th>';
+            html += '<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Descrição</th>';
+            html += '<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Data</th>';
+            html += '<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Nome Professor</th>';
+            html += '</tr></thead><tbody><tr>';
+            html += '<td style="border: 1px solid #ddd; padding: 8px;">' + (conselho.Id_Conselho || conselho.idConselho || '-') + '</td>';
+            html += '<td style="border: 1px solid #ddd; padding: 8px;">' + (conselho.Descricao || conselho.descricao || '-') + '</td>';
+            html += '<td style="border: 1px solid #ddd; padding: 8px;">' + (conselho.Data || conselho.data || '-') + '</td>';
+            html += '<td style="border: 1px solid #ddd; padding: 8px;">' + (conselho.Nome_Professor || conselho.nomeProfessor || '-') + '</td>';
+            html += '</tr></tbody></table>';
+            div.innerHTML = html;
+        } else {
+            div.innerHTML = '<p style="color: orange;">⚠️ Não existem mais conselhos para o professor.</p>';
+            document.getElementById('navegacao-conselhos').style.display = 'none';
+            cursorConselhosId = null;
+        }
     } catch (error) {
         div.innerHTML = '<p style="color: red;">❌ Erro: ' + error.message + '</p>';
     }
@@ -927,7 +1121,7 @@ async function calcularMediaTurma() {
     div.innerHTML = '<p>🔄 Calculando...</p>';
     
     try {
-        const response = await fetch(`/api/sql-avancado/procedimento/media-turma/${idTurma}`);
+        const response = await fetch(`/api/sql-avancado/funcao/media-turma/${idTurma}`);
         const resultado = await response.json();
         
         if (resultado.error) {

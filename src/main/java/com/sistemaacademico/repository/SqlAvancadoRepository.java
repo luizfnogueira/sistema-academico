@@ -400,39 +400,38 @@ public class SqlAvancadoRepository {
         jdbcTemplate.execute(sql);
     }
     
-    // Criar procedimento calcularMediaTurma
-    public void criarProcedimentoCalcularMediaTurma() {
+    // Criar função calcularMediaTurma
+    public void criarFuncaoCalcularMediaTurma() {
         try {
-            jdbcTemplate.execute("DROP PROCEDURE IF EXISTS calcularMediaTurma");
+            jdbcTemplate.execute("DROP FUNCTION IF EXISTS calcularMediaTurma");
         } catch (Exception e) {
             // Ignorar se não existir
         }
         
         String sql = """
-            CREATE PROCEDURE calcularMediaTurma(IN idTurma INT)
+            CREATE FUNCTION calcularMediaTurma(idTurma INT)
+            RETURNS DECIMAL(4,2)
+            DETERMINISTIC
+            READS SQL DATA
             BEGIN
-                SELECT COALESCE(AVG(a.Media), 0) AS mediaTurma
+                DECLARE mediaTurma DECIMAL(4,2);
+                
+                SELECT COALESCE(AVG(a.Media), 0) INTO mediaTurma
                 FROM Aluno a
                 JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
                 WHERE m.Id_Turma = idTurma
                 AND a.Media IS NOT NULL
                 AND a.Media > 0;
+                
+                RETURN mediaTurma;
             END
         """;
         jdbcTemplate.execute(sql);
     }
     
-    // Chamar procedimento calcularMediaTurma
-    public Double chamarProcedimentoCalcularMediaTurma(int idTurma) {
-        // Usar query direta ao invés de procedure com OUT parameter
-        String sql = """
-            SELECT COALESCE(AVG(a.Media), 0) AS mediaTurma
-            FROM Aluno a
-            JOIN Matricula m ON a.Id_Aluno = m.Id_Aluno
-            WHERE m.Id_Turma = ?
-            AND a.Media IS NOT NULL
-            AND a.Media > 0
-        """;
+    // Chamar função calcularMediaTurma
+    public Double chamarFuncaoCalcularMediaTurma(int idTurma) {
+        String sql = "SELECT calcularMediaTurma(?)";
         try {
             return jdbcTemplate.queryForObject(sql, Double.class, idTurma);
         } catch (Exception e) {
@@ -450,9 +449,9 @@ public class SqlAvancadoRepository {
             criarViewDetalhesAcademicosAluno();
             criarViewPerfilCompletoProfessor();
             criarFuncaoSituacaoAluno();
+            criarFuncaoCalcularMediaTurma();
             // Função calcularMediaDisciplina removida
             criarProcedimentoUpdateFrequenciaAluno();
-            criarProcedimentoCalcularMediaTurma();
             criarProcedimentoContarConselhosPorProfessor();
             criarTriggerLogPagamento();
             criarTriggerRecalcularMediaGeralAluno();

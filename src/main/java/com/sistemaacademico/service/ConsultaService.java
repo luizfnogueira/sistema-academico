@@ -40,6 +40,41 @@ public class ConsultaService {
     }
 
     public Aluno atualizarAluno(Aluno aluno) {
+        // Buscar aluno existente para preencher campos não fornecidos
+        Aluno alunoExistente = consultaRepository.buscarAlunoPorId(aluno.getIdAluno());
+        if (alunoExistente == null) {
+            throw new RuntimeException("Aluno não encontrado");
+        }
+        
+        // Mesclar dados: usar valores fornecidos ou manter os existentes
+        if (aluno.getNome() == null || aluno.getNome().trim().isEmpty()) {
+            aluno.setNome(alunoExistente.getNome());
+        }
+        if (aluno.getSexo() == null || aluno.getSexo().trim().isEmpty()) {
+            aluno.setSexo(alunoExistente.getSexo());
+        }
+        if (aluno.getDataNasc() == null) {
+            aluno.setDataNasc(alunoExistente.getDataNasc());
+        }
+        if (aluno.getIdade() == 0) {
+            aluno.setIdade(alunoExistente.getIdade());
+        }
+        if (aluno.getNum() == 0) {
+            aluno.setNum(alunoExistente.getNum());
+        }
+        if (aluno.getCep() == null || aluno.getCep().trim().isEmpty()) {
+            aluno.setCep(alunoExistente.getCep());
+        }
+        if (aluno.getRua() == null || aluno.getRua().trim().isEmpty()) {
+            aluno.setRua(alunoExistente.getRua());
+        }
+        if (aluno.getMedia() == 0.0) {
+            aluno.setMedia(alunoExistente.getMedia());
+        }
+        if (aluno.getFrequencia() == 0.0) {
+            aluno.setFrequencia(alunoExistente.getFrequencia());
+        }
+        
         int linhasAfetadas = consultaRepository.atualizarAluno(aluno);
         if (linhasAfetadas > 0) {
             return aluno;
@@ -83,6 +118,57 @@ public class ConsultaService {
         return linhasAfetadas > 0;
     }
 
+    // ========== SERVIÇOS PARA AVALIAÇÕES ==========
+    
+    public com.sistemaacademico.model.Avaliacao criarAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
+        int linhasAfetadas = consultaRepository.inserirAvaliacao(avaliacao);
+        if (linhasAfetadas > 0) {
+            return avaliacao;
+        }
+        throw new RuntimeException("Erro ao criar avaliação");
+    }
+
+    public List<com.sistemaacademico.model.Avaliacao> listarAvaliacoes() {
+        return consultaRepository.listarTodasAvaliacoes();
+    }
+
+    public com.sistemaacademico.model.Avaliacao buscarAvaliacaoPorId(int id) {
+        return consultaRepository.buscarAvaliacaoPorId(id);
+    }
+
+    public com.sistemaacademico.model.Avaliacao atualizarAvaliacao(com.sistemaacademico.model.Avaliacao avaliacao) {
+        // Buscar avaliação existente para preencher campos não fornecidos
+        com.sistemaacademico.model.Avaliacao avaliacaoExistente = consultaRepository.buscarAvaliacaoPorId(avaliacao.getIdAvalia());
+        if (avaliacaoExistente == null) {
+            throw new RuntimeException("Avaliação não encontrada");
+        }
+        
+        // Mesclar dados: usar valores fornecidos ou manter os existentes
+        if (avaliacao.getValor() == 0.0) {
+            avaliacao.setValor(avaliacaoExistente.getValor());
+        }
+        if (avaliacao.getData() == null) {
+            avaliacao.setData(avaliacaoExistente.getData());
+        }
+        if (avaliacao.getIdAluno() == 0) {
+            avaliacao.setIdAluno(avaliacaoExistente.getIdAluno());
+        }
+        if (avaliacao.getIdDisc() == 0) {
+            avaliacao.setIdDisc(avaliacaoExistente.getIdDisc());
+        }
+        
+        int linhasAfetadas = consultaRepository.atualizarAvaliacao(avaliacao);
+        if (linhasAfetadas > 0) {
+            return avaliacao;
+        }
+        throw new RuntimeException("Erro ao atualizar avaliação");
+    }
+
+    public boolean deletarAvaliacao(int id) {
+        int linhasAfetadas = consultaRepository.deletarAvaliacao(id);
+        return linhasAfetadas > 0;
+    }
+
     // ========== SERVIÇOS PARA PROFESSORES ==========
     
     public Professor criarProfessor(Professor professor) {
@@ -102,6 +188,29 @@ public class ConsultaService {
     }
 
     public Professor atualizarProfessor(Professor professor) {
+        // Buscar professor existente para preencher campos não fornecidos
+        Professor professorExistente = consultaRepository.buscarProfessorPorId(professor.getIdProf());
+        if (professorExistente == null) {
+            throw new RuntimeException("Professor não encontrado");
+        }
+        
+        // Mesclar dados: usar valores fornecidos ou manter os existentes
+        if (professor.getNome() == null || professor.getNome().trim().isEmpty()) {
+            professor.setNome(professorExistente.getNome());
+        }
+        if (professor.getCpf() == null || professor.getCpf().trim().isEmpty()) {
+            professor.setCpf(professorExistente.getCpf());
+        }
+        if (professor.getRua() == null || professor.getRua().trim().isEmpty()) {
+            professor.setRua(professorExistente.getRua());
+        }
+        if (professor.getNum() == 0) {
+            professor.setNum(professorExistente.getNum());
+        }
+        if (professor.getCep() == null || professor.getCep().trim().isEmpty()) {
+            professor.setCep(professorExistente.getCep());
+        }
+        
         int linhasAfetadas = consultaRepository.atualizarProfessor(professor);
         if (linhasAfetadas > 0) {
             return professor;

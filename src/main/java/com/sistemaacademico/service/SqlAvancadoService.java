@@ -4,6 +4,7 @@ import com.sistemaacademico.repository.SqlAvancadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,10 +94,45 @@ public class SqlAvancadoService {
         return sqlAvancadoRepository.criarConselhoEAtribuir(idProf, descricao, data);
     }
     
-    // ========== SERVIÇOS DE PROCEDIMENTOS ==========
+    // ========== SERVIÇOS DE FUNÇÕES ==========
     
     public Double calcularMediaTurma(int idTurma) {
-        return sqlAvancadoRepository.chamarProcedimentoCalcularMediaTurma(idTurma);
+        return sqlAvancadoRepository.chamarFuncaoCalcularMediaTurma(idTurma);
+    }
+    
+    // ========== SERVIÇOS DE NAVEGAÇÃO DE CONSELHOS (CURSOR SIMULADO) ==========
+    
+    private static final java.util.Map<String, java.util.List<Map<String, Object>>> cursorsConselhos = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<String, Integer> indicesConselhos = new java.util.concurrent.ConcurrentHashMap<>();
+    
+    public String iniciarNavegacaoConselhos(int idProf) {
+        List<Map<String, Object>> conselhos = sqlAvancadoRepository.consultarConselhosPorProfessor(idProf);
+        String cursorId = "cursor_" + idProf + "_" + System.currentTimeMillis();
+        cursorsConselhos.put(cursorId, conselhos);
+        indicesConselhos.put(cursorId, 0);
+        return cursorId;
+    }
+    
+    public Map<String, Object> proximoConselho(String cursorId) {
+        List<Map<String, Object>> conselhos = cursorsConselhos.get(cursorId);
+        Integer indice = indicesConselhos.get(cursorId);
+        
+        if (conselhos == null || indice == null) {
+            throw new RuntimeException("Cursor inválido ou expirado");
+        }
+        
+        if (indice >= conselhos.size()) {
+            // Limpar cursor
+            cursorsConselhos.remove(cursorId);
+            indicesConselhos.remove(cursorId);
+            Map<String, Object> resultado = new HashMap<>();
+            resultado.put("fim", true);
+            return resultado;
+        }
+        
+        Map<String, Object> conselho = conselhos.get(indice);
+        indicesConselhos.put(cursorId, indice + 1);
+        return conselho;
     }
 }
 
