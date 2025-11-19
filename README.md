@@ -61,10 +61,40 @@ mvn spring-boot:run
 
 ## 📊 Estrutura do Banco
 
-- Tabelas principais: `Aluno`, `Professor`, `Disciplina`, `Avaliacao`, `Matricula`, `Conselho`, etc.
-- Funções e procedimentos para cálculos, atualizações e relatórios.
-- Triggers para atualização automática de médias e logs.
-- Veja o script completo em `scripts/inicializar_banco.sql`.
+### Localizações dos Requisitos de Entregas
+
+### 1. CRUD para um total de ao menos 04 tabelas:
+
+Aluno: AlunoController.java (inicia na linha 19)
+Professor: AlunoController.java (métodos a partir da linha 31)
+Disciplina: AlunoController.java (métodos a partir da linha 34)
+Avaliação: AlunoController.java (métodos a partir da linha 44)
+Service/Repository: ConsultaService.java (linha 17), ConsultaRepository.java (linha 17)
+Frontend: index.html (linhas 20-180, formulários CRUD), dashboard.js (linhas 1-120)
+
+### 2. Integração com Funções, Procedimentos e Triggers:
+
+SQL: inicializar_banco.sql
+Funções: linha 256 (situacaoAluno), linha 283 (calcularMediaTurma)
+Procedimentos: linha 304 (updateFrequenciaAluno), linha 317 (contarConselhosPorProfessor)
+Triggers: linha 349 (logPagamento), linha 361 (recalcularMediaGeralAluno)
+Backend: SqlAvancadoController.java (linha 38+), SqlAvancadoService.java (linha 17+), SqlAvancadoRepository.java (linha 17+)
+
+### 3. Consultas e Views:
+
+SQL: inicializar_banco.sql
+Views: linha 180 (vw_DetalhesAcademicosAluno), linha 200 (vw_PerfilCompletoProfessor)
+Backend: SqlAvancadoController.java (linha 60+), SqlAvancadoService.java (linha 30+), SqlAvancadoRepository.java (linha 60+)
+
+### 4. Indicadores resumidos: total de registros, médias, percentuais, tendências, etc: 
+
+Backend: DashboardController.java (linha 17+), ConsultaService.java (linha 200+)
+Frontend: index.html (linhas 422, 426, 430, 434, 438 - elementos stat-number)
+JS: dashboard.js (linhas 150-200)
+
+### 5. Gráficos dinâmicos:
+Frontend: index.html (linhas 443, 446, 448-454 - elementos canvas)
+JS: dashboard.js (linhas 200-300, funções de gráficos)
 
 ## 📈 Dashboard
 
